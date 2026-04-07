@@ -1,11 +1,11 @@
 <?php
 function tarjeta(string $color,string $numero,string $texto,string $icono):string{
-    $miColor= {
+    $miColor= [
         'amarillo'=>'bg-warning',
         'azul'=>'bg-info',
         'rojo'=>'bg-danger',
         'verde'=>'success'
-    };
+    ];
 
     $colofinal=$miColor[$color];
 
