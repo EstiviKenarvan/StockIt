@@ -122,46 +122,69 @@ include __DIR__ . "/includes/tablas.php";
       </div>
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <li class="nav-item">
-            <a href="GestiondeProductos.php" class="nav-link">
-              <i class="nav-icon ion-bag"></i><p>Productos <span class="right badge badge-danger">New</span></p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon ion-pie-graph"></i><p>Análisis de Productos <span class="right badge badge-danger">New</span></p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="Clientes.php" class="nav-link active">
-              <i class="nav-icon ion-ios-people"></i><p>Clientes <span class="right badge badge-danger">New</span></p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon ion-clipboard"></i><p>Inventario <span class="right badge badge-danger">New</span></p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon ion-briefcase"></i><p>Proveedores <span class="right badge badge-danger">New</span></p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon ion-ios-bell"></i><p>Alertas <span class="right badge badge-danger">New</span></p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon ion-document-text"></i><p>Reportes <span class="right badge badge-danger">New</span></p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="ventas.php" class="nav-link">
-              <i class="nav-icon ion-cash"></i><p>Tipo de Ventas <span class="right badge badge-danger">New</span></p>
-            </a>
-          </li>
+           <li class="nav-item">
+              <a href="GestiondeProductos.php" class="nav-link">
+                <i class="ion-bag"></i>
+                <p>
+                  Productos
+                  <span class="right badge badge-danger">New</span>
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="analisisProductos.php" class="nav-link">
+                <i class="ion-pie-graph"></i>
+                <p>
+                  Analisis de Productos
+                  <span class="right badge badge-danger">New</span>
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="Clientes.php" class="nav-link">
+                <i class="ion-ios-people"></i>
+                <p>
+                  Clientes
+                  <span class="right badge badge-danger">New</span>
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="analisisProd.php" class="nav-link">
+                <i class="ion-clipboard"></i>
+                <p>
+                  Inventario
+                  <span class="right badge badge-danger">New</span>
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="Proveedores.php" class="nav-link">
+                <i class="ion-briefcase"></i>
+                <p>
+                  Proveedores
+                  <span class="right badge badge-danger">New</span>
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="modulo_reportes.php" class="nav-link">
+                <i class="ion-document-text"></i>
+                <p>
+                  Reportes
+                  <span class="right badge badge-danger">New</span>
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="ventas.php" class="nav-link">
+                <i class="ion-cash"></i>
+                <p>
+                  Tipo de Ventas
+                  <span class="right badge badge-danger">New</span>
+                </p>
+              </a>
+            </li>
         </ul>
       </nav>
     </div>

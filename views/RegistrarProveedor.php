@@ -1,43 +1,13 @@
 <?php
-function crearCardProveedor($nombre, $tel, $tags, $status, $fecha, $bordeColor = "#28A745")
-{
-    $statusStyle = ($status == "Activo")
-        ? "background-color:#D4EDDA; color:#155724;"
-        : (($status == "Reabastecer urgente")
-            ? "background-color:#F8D7DA; color:#721C24;"
-            : "background-color:#e9ecef; color:#6c757d;");
-
-    $tagsHtml = '';
-    foreach ($tags as $tag) {
-        $tagsHtml .= "<span class='badge p-2 mr-1' style='background-color:#FFE0B2; color:#C06000; font-weight:normal; border-radius:8px;'>{$tag}</span>";
-    }
-
-    return "
-    <div class='col-md-4 mb-4'>
-        <div class='card' style='border-top:4px solid {$bordeColor}; border-radius:12px; padding:20px; background:white;'>
-            <div class='d-flex align-items-center mb-2'>
-                <i class='fas fa-store mr-2' style='color:#6c757d;'></i>
-                <h5 class='m-0 font-weight-bold'>{$nombre}</h5>
-            </div>
-            <p class='text-muted small mb-3'><i class='fas fa-phone-alt mr-1'></i> {$tel}</p>
-            <div class='mb-3'>{$tagsHtml}</div>
-            <div class='mb-3'>
-                <span class='badge p-1 px-3' style='{$statusStyle} border-radius:5px;'>{$status}</span>
-            </div>
-            <div class='d-flex justify-content-between align-items-center mt-2'>
-                <small class='text-muted'>Último pedido: {$fecha}</small>
-                <button class='btn btn-sm' style='background-color:#E8820C; color:white; border-radius:8px; padding:5px 15px;'>Ver detalle</button>
-            </div>
-        </div>
-    </div>";
-}
+function crearFilaColapsable($id, $titulo) { return ""; }
+function crearLeyenda($color, $texto) { return ""; }
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Stock It | Proveedores</title>
+    <title>Stock It | Registrar Proveedor</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="../public/plugins/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
@@ -58,6 +28,7 @@ function crearCardProveedor($nombre, $tel, $tags, $status, $fecha, $bordeColor =
         .user-panel, .form-inline { border-bottom:1px solid rgba(255,255,255,0.2) !important; }
         .content-wrapper { background-color:#FFF5E5 !important; }
         .titulo-naranja { color:#E8820C; font-weight:bold; }
+        .card-fila { background:white !important; border-radius:15px !important; border:1px solid #E0E0E0 !important; margin-bottom:15px !important; border-left:8px solid #E8820C !important; box-shadow:0 2px 4px rgba(0,0,0,0.05) !important; }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -190,69 +161,109 @@ function crearCardProveedor($nombre, $tel, $tags, $status, $fecha, $bordeColor =
     <div class="content-wrapper">
         <div class="content-header">
             <div class="container-fluid">
-                <div class="row align-items-center mb-4">
-                    <div class="col-md-6">
-                        <h1 class="m-0">Módulo de <span class="titulo-naranja">Proveedores</span></h1>
-                        <p class="text-muted">Seguimiento de proveedores</p>
-                    </div>
-                    <div class="col-md-6 text-right">
-                        <div class="d-flex justify-content-end align-items-center">
-                            <div class="position-relative mr-3" style="width:250px;">
-                                <i class="fas fa-search position-absolute" style="left:10px; top:10px; color:#ccc;"></i>
-                                <input type="text" class="form-control pl-5" placeholder="Buscar proveedor..." style="border-radius:8px;">
-                            </div>
-                            <a href="RegistrarProveedor.php" class="btn" style="background-color:#E8820C; color:white; border-radius:8px; font-weight:bold;">
-                                <i class="fas fa-plus mr-1"></i> Registrar proveedor
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tarjetas resumen -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card p-3" style="border-top:5px solid #E8820C; border-radius:10px;">
-                            <small class="text-muted font-weight-bold">Total proveedores</small>
-                            <h2 class="titulo-naranja mb-1">12</h2>
-                            <div class="p-1 px-2" style="background-color:#FFF5E5; border-radius:5px; font-size:0.8rem;">Registrados</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card p-3" style="border-top:5px solid #28A745; border-radius:10px;">
-                            <small class="text-muted font-weight-bold">Activos</small>
-                            <h2 class="text-success mb-1">9</h2>
-                            <div class="p-1 px-2" style="background-color:#E8F5E9; border-radius:5px; font-size:0.8rem;">En servicio</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card p-3" style="border-top:5px solid #007BFF; border-radius:10px;">
-                            <small class="text-muted font-weight-bold">Productos asociados</small>
-                            <h2 class="text-primary mb-1">148</h2>
-                            <div class="p-1 px-2" style="background-color:#E7F1FF; border-radius:5px; font-size:0.8rem;">Productos</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card p-3" style="border-top:5px solid #C0392B; border-radius:10px;">
-                            <small class="text-muted font-weight-bold">Reabastecer</small>
-                            <h2 class="text-danger mb-1">5</h2>
-                            <div class="p-1 px-2" style="background-color:#FDEDEC; border-radius:5px; font-size:0.8rem;">Urgentes</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tarjetas de proveedores -->
-                <div class="row">
-                    <?php
-                    echo crearCardProveedor("Marinela",        "55-1234-5678", ["Gansitos","Submarinos"],   "Activo",              "28 Feb", "#E8820C");
-                    echo crearCardProveedor("Bimbo",           "55-8765-4321", ["Nitos","Chocorroles"],     "Activo",              "25 Feb", "#28A745");
-                    echo crearCardProveedor("Coca Cola",       "55-4444-3333", ["Delaware","Fanta"],        "Reabastecer urgente", "10 Feb", "#C0392B");
-                    echo crearCardProveedor("Gamesa",          "55-9999-0000", ["Chokis","Emperador"],      "Activo",              "01 Mar", "#28A745");
-                    echo crearCardProveedor("Barcel",          "55-7777-1111", ["Takis","Big Mix"],         "Activo",              "27 Feb", "#28A745");
-                    echo crearCardProveedor("Dist. Chidas",    "55-2222-8888", ["Papas","Nachos"],          "Inactivo",            "10 Feb", "#ced4da");
-                    ?>
-                </div>
+                <p class="text-muted small">Proveedores / <span class="titulo-naranja font-weight-bold">Registrar Proveedor</span></p>
             </div>
         </div>
+
+        <section class="content">
+            <div class="container-fluid">
+                <div class="card card-fila shadow-sm" style="border-radius:15px; border-left:5px solid #E8820C !important;">
+                    <div class="card-header bg-white pt-4 border-0">
+                        <h4 class="titulo-naranja font-weight-bold m-0">Registrar nuevo proveedor</h4>
+                        <p class="text-muted small">Datos de contacto y productos asociados</p>
+                    </div>
+                    <div class="card-body px-4">
+
+                        <h6 class="titulo-naranja font-weight-bold mb-3" style="border-bottom:1px solid #FFE0B2; padding-bottom:5px;">Datos del proveedor</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6 form-group">
+                                <label class="small font-weight-bold">Nombre / Razón social *</label>
+                                <input type="text" class="form-control" placeholder="Ej. Marinela S.A." style="border-radius:8px;">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="small font-weight-bold">Teléfono *</label>
+                                <input type="text" class="form-control" placeholder="55-1234-5678" style="border-radius:8px;">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 form-group">
+                                <label class="small font-weight-bold">Correo electrónico *</label>
+                                <input type="email" class="form-control" placeholder="contacto@empresa.com" style="border-radius:8px;">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="small font-weight-bold">Sitio web</label>
+                                <input type="text" class="form-control" placeholder="www.proveedor.com" style="border-radius:8px;">
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-3 form-group">
+                                <label class="small font-weight-bold">Estado *</label>
+                                <select class="form-control" style="border-radius:8px;">
+                                    <option>Activo</option>
+                                    <option>Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label class="small font-weight-bold">Días de entrega</label>
+                                <input type="text" class="form-control" placeholder="0 días" style="border-radius:8px;">
+                            </div>
+                        </div>
+
+                        <h6 class="titulo-naranja font-weight-bold mb-3" style="border-bottom:1px solid #FFE0B2; padding-bottom:5px;">Productos que suministra</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white border-right-0"><i class="fas fa-search text-muted"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control border-left-0" placeholder="Buscar y agregar productos..." style="border-radius:0 8px 8px 0;">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-block" style="background-color:#E8820C; color:white; border-radius:8px; font-weight:bold;">+ Agregar</button>
+                            </div>
+                        </div>
+                        <div class="mb-4" id="tags-productos">
+                            <span class="badge p-2 px-3 mr-2" style="background-color:#FFF5E5; color:#E8820C; border:1px solid #FFE0B2; border-radius:20px; font-weight:normal;">Gansitos</span>
+                            <span class="badge p-2 px-3 mr-2" style="background-color:#FFF5E5; color:#E8820C; border:1px solid #FFE0B2; border-radius:20px; font-weight:normal;">Submarinos</span>
+                            <span class="badge p-2 px-3 mr-2" style="background-color:#FFF5E5; color:#E8820C; border:1px solid #FFE0B2; border-radius:20px; font-weight:normal;">Mantecadas</span>
+                            <span class="badge p-2 px-3 mr-2" style="background-color:#FFF5E5; color:#E8820C; border:1px solid #FFE0B2; border-radius:20px; font-weight:normal;">Chocorroles</span>
+                        </div>
+
+                        <h6 class="titulo-naranja font-weight-bold mb-3" style="border-bottom:1px solid #FFE0B2; padding-bottom:5px;">Condiciones comerciales</h6>
+                        <div class="row mb-5">
+                            <div class="col-md-4 form-group">
+                                <label class="small font-weight-bold">Frecuencia de pedido</label>
+                                <select class="form-control" style="border-radius:8px;">
+                                    <option>Seleccionar</option>
+                                    <option>Semanal</option>
+                                    <option>Quincenal</option>
+                                    <option>Mensual</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label class="small font-weight-bold">Pedido mínimo</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend"><span class="input-group-text">$</span></div>
+                                    <input type="text" class="form-control" placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label class="small font-weight-bold">Crédito (días)</label>
+                                <input type="text" class="form-control" placeholder="0 días" style="border-radius:8px;">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 mb-3">
+                            <button type="submit" class="btn px-4 mr-2" style="background-color:#E8820C; color:white; border-radius:10px; font-weight:bold; height:45px;">
+                                <i class="fas fa-save mr-2"></i>Registrar proveedor
+                            </button>
+                            <a href="Proveedores.php" class="btn btn-outline-secondary px-4" style="border-radius:10px; height:45px; line-height:30px;">Cancelar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <footer class="main-footer">

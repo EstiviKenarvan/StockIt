@@ -214,7 +214,7 @@ include __DIR__ . "/includes/tablas.php";
               </a>
             </li>
             <li class="nav-item">
-              <a href="pages/widgets.html" class="nav-link">
+              <a href="analisisProductos.php" class="nav-link">
                 <i class="ion-pie-graph"></i>
                 <p>
                   Analisis de Productos
@@ -232,7 +232,7 @@ include __DIR__ . "/includes/tablas.php";
               </a>
             </li>
             <li class="nav-item">
-              <a href="pages/widgets.html" class="nav-link">
+              <a href="analisisProd.php" class="nav-link">
                 <i class="ion-clipboard"></i>
                 <p>
                   Inventario
@@ -241,7 +241,7 @@ include __DIR__ . "/includes/tablas.php";
               </a>
             </li>
             <li class="nav-item">
-              <a href="pages/widgets.html" class="nav-link">
+              <a href="Proveedores.php" class="nav-link">
                 <i class="ion-briefcase"></i>
                 <p>
                   Proveedores
@@ -250,16 +250,7 @@ include __DIR__ . "/includes/tablas.php";
               </a>
             </li>
             <li class="nav-item">
-              <a href="pages/widgets.html" class="nav-link">
-                <i class="ion-ios-bell"></i>
-                <p>
-                  Alertas
-                  <span class="right badge badge-danger">New</span>
-                </p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="pages/widgets.html" class="nav-link">
+              <a href="modulo_reportes.php" class="nav-link">
                 <i class="ion-document-text"></i>
                 <p>
                   Reportes
