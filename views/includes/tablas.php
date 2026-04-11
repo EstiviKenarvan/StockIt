@@ -1,22 +1,11 @@
 <?php
-/**
- * Genera una tabla compatible con DataTables y AdminLTE.
- * 
- * @param string $titulo      El título que aparecerá en la tarjeta.
- * @param array  $encabezados Array simple con los nombres de las columnas.
- * @param array  $filas       Array bidimensional con los datos de cada celda.
- * @param string $id          ID único para inicializar DataTable (ej: 'example2').
- * @return string             HTML completo de la tabla.
- */
 function crearTabla(string $titulo, array $encabezados, array $filas, string $id = 'example2'): string {
     
-    // Generamos los encabezados (thead) y pies de tabla (tfoot)
     $headerHtml = "";
     foreach ($encabezados as $columna) {
         $headerHtml .= "<th>$columna</th>";
     }
 
-    // Generamos el cuerpo de la tabla (tbody)
     $bodyHtml = "";
     foreach ($filas as $fila) {
         $bodyHtml .= "<tr>";
@@ -26,24 +15,66 @@ function crearTabla(string $titulo, array $encabezados, array $filas, string $id
         $bodyHtml .= "</tr>";
     }
 
-// ... dentro de la función crearTabla ...
     return "
     <div class='card card-outline card-primary shadow-sm'>
         <div class='card-header'>
             <h3 class='card-title' style='color: #002D52; font-weight: bold;'>$titulo</h3>
         </div>
         <div class='card-body'>
-            <table id='$id' class='table table-bordered table-hover'>
+            <table id='$id' class='table table-bordered table-hover w-100'>
                 <thead style='background-color: #f4f6f9; color: #002D52;'>
                     <tr>$headerHtml</tr>
                 </thead>
                 <tbody>
                     $bodyHtml
                 </tbody>
-                <!-- Se eliminó el tfoot de aquí para que no se repita al final -->
             </table>
         </div>
     </div>
+
+    <script>
+        (function() {
+            function cargarScript(url, callback) {
+                var script = document.createElement('script');
+                script.src = url;
+                script.onload = callback;
+                document.head.appendChild(script);
+            }
+
+            // Esperamos a que jQuery esté listo
+            var checkReady = setInterval(function() {
+                if (window.jQuery) {
+                    clearInterval(checkReady);
+                    
+                    // Si DataTables no está cargado, lo traemos de la CDN
+                    if (!$.fn.DataTable) {
+                        cargarScript('https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js', function() {
+                            cargarScript('https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js', inicializar);
+                        });
+                    } else {
+                        inicializar();
+                    }
+                }
+            }, 100);
+
+            function inicializar() {
+                if ($.fn.DataTable.isDataTable('#$id')) {
+                    $('#$id').DataTable().destroy();
+                }
+                $('#$id').DataTable({
+                    \"paging\": true,
+                    \"lengthChange\": true,
+                    \"searching\": true,
+                    \"ordering\": true,
+                    \"info\": true,
+                    \"autoWidth\": false,
+                    \"responsive\": true,
+                    \"language\": {
+                        \"url\": \"//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json\"
+                    }
+                });
+            }
+        })();
+    </script>
     ";
 }
-?>
