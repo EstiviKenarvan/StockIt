@@ -1,4 +1,7 @@
 <?php
+require_once "../config/conexion.php"; 
+$sql = "SELECT p.*, c.nombre_categoria FROM productos p INNER JOIN categorias c ON p.id_categoria = c.id_categoria";
+$productos = $conexion->query($sql)->fetchAll(PDO::FETCH_OBJ);
 // Función para crear una fila colapsable
 function crearFilaColapsable($id, $titulo)
 {

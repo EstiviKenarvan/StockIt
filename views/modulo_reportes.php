@@ -1,4 +1,6 @@
 <?php
+require_once "../config/conexion.php"; 
+$historial = $conexion->query("SELECT * FROM historial_reportes ORDER BY fecha_generacion DESC")->fetchAll(PDO::FETCH_OBJ);
 // Función para crear una fila colapsable
 function crearFilaColapsable($id, $titulo)
 {

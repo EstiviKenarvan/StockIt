@@ -1,4 +1,7 @@
 <?php
+require_once "../config/conexion.php"; 
+$bajoStock = $conexion->query("SELECT * FROM productos WHERE stock_actual < stock_minimo")->fetchAll(PDO::FETCH_OBJ);
+
 // Función para crear una fila colapsable con COLOR VARIABLE
 function crearFilaColapsable($id, $titulo, $esRojo = false)
 {

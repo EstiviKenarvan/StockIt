@@ -1,4 +1,8 @@
 <?php
+require_once "../config/conexion.php";
+
+$totalStock = $conexion->query("SELECT SUM(stock_actual) FROM productos")->fetchColumn();
+$alertas = $conexion->query("SELECT COUNT(*) FROM productos WHERE stock_actual <= stock_minimo")->fetchColumn();
 // Función para crear una fila colapsable con COLOR VARIABLE
 function crearFilaColapsable($id, $titulo, $esRojo = false)
 {
@@ -509,7 +513,7 @@ function crearLeyenda($color, $texto)
                                 </div>
                                 <div class="row">
                                     <div class="col-md-8">
-                                       
+
 
                                         <div class="card card-outline" style="border-radius: 15px; background-color: #FFF9F2; border: 1px solid #FAD7A0;">
                                             <div class="card-header border-0">

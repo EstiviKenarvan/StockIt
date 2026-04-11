@@ -1,4 +1,7 @@
 <?php
+require_once "../config/conexion.php"; 
+$stmt = $conexion->query("SELECT * FROM proveedores ORDER BY nombre ASC");
+$listaProveedores = $stmt->fetchAll(PDO::FETCH_OBJ);
 // Función para crear una fila colapsable
 function crearFilaColapsable($id, $titulo)
 {

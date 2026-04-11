@@ -1,4 +1,5 @@
 <?php
+require_once "../config/conexion.php";
 // Función para crear una fila colapsable
 function crearFilaColapsable($id, $titulo)
 {

@@ -1,4 +1,6 @@
 <?php
+require_once "../config/conexion.php"; 
+$productosSelector = $conexion->query("SELECT id_producto, nombre_producto FROM productos")->fetchAll(PDO::FETCH_OBJ);
 // Función para crear una fila colapsable
 function crearFilaColapsable($id, $titulo)
 {
