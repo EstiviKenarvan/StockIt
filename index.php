@@ -1,64 +1,80 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <!-- Google Font: Source Sans Pro -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="public/plugins/fontawesome-free/css/all.min.css">
-  <!-- Ionicons -->
-  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-  <!-- Tempusdominus Bootstrap 4 -->
-  <link rel="stylesheet" href="public/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-  <!-- iCheck -->
-  <link rel="stylesheet" href="public/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-  <!-- JQVMap -->
-  <link rel="stylesheet" href="public/plugins/jqvmap/jqvmap.min.css">
-  <!-- Theme style -->
-  <link rel="stylesheet" href="public/dist/css/adminlte.min.css">
-  <!-- overlayScrollbars -->
-  <link rel="stylesheet" href="public/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Daterange picker -->
-  <link rel="stylesheet" href="public/plugins/daterangepicker/daterangepicker.css">
-  <!-- summernote -->
-  <link rel="stylesheet" href="public/plugins/summernote/summernote-bs4.min.css">
-</head>
-<body class="hold-transition sidebar-mini">
-    <?php include "views/GestiondeProductos.php"; ?>
-    
-    <script src="plugins/jquery/jquery.min.js"></script>
-    <script src="dist/js/adminlte.min.js"></script>
-    <!-- jQuery -->
-  <script src="public/plugins/jquery/jquery.min.js"></script>
-  <!-- jQuery UI 1.11.4 -->
-  <script src="public/plugins/jquery-ui/jquery-ui.min.js"></script>
-  <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-  <script>
-    $.widget.bridge('uibutton', $.ui.button)
-  </script>
-  <!-- Bootstrap 4 -->
-  <script src="public/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <!-- ChartJS -->
-  <script src="public/plugins/chart.js/Chart.min.js"></script>
-  <!-- Sparkline -->
-  <script src="public/plugins/sparklines/sparkline.js"></script>
-  <!-- JQVMap -->
-  <script src="public/plugins/jqvmap/jquery.vmap.min.js"></script>
-  <script src="public/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
-  <!-- jQuery Knob Chart -->
-  <script src="public/plugins/jquery-knob/jquery.knob.min.js"></script>
-  <!-- daterangepicker -->
-  <script src="public/plugins/moment/moment.min.js"></script>
-  <script src="public/plugins/daterangepicker/daterangepicker.js"></script>
-  <!-- Tempusdominus Bootstrap 4 -->
-  <script src="public/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-  <!-- Summernote -->
-  <script src="public/plugins/summernote/summernote-bs4.min.js"></script>
-  <!-- overlayScrollbars -->
-  <script src="public/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-  <!-- AdminLTE App -->
-  <script src="public/dist/js/adminlte.js"></script>
-  <!-- AdminLTE for demo purposes -->
-  <script src="public/dist/js/demo.js"></script>
-  <!-- AdminLTE dashboard demo (This is only for demo purposes) <script src="public/dist/js/pages/dashboard.js"></script> -->
-</body>
-</html>
+<?php
+
+$menu    = $_GET['menu']    ?? 'productos';
+$submenu = $_GET['submenu'] ?? 'index';
+
+require_once 'config/database.php';
+$db = new Database();
+$conexion = $db->getConnection();
+
+require_once 'functions.php';
+require_once 'controllers/ClientesController.php';
+require_once 'controllers/ProductosController.php';
+
+if ($menu == 'productos') {
+    $productosController = new ProductosController($conexion);
+    if ($submenu == 'registro') {
+        $productosController->crear();      // ← solo este cambio
+    } else if ($submenu == 'editar') {
+        $id = (int)($_GET['id'] ?? 0);
+        $productosController->editar($id);
+    } else if ($submenu == 'borrar') {
+        $id = (int)($_GET['id'] ?? 0);
+        $productosController->borrar($id);
+    } else {
+        $productosController->index();
+    }
+
+} else if ($menu == 'analisisproductos') {
+    if ($submenu == 'menosvendidos')
+        require_once 'views/productos_menos_vendidos.php';
+    else
+        require_once 'views/analisisProductos.php';
+
+} else if ($menu == 'clientes') {
+    $clientecontroller = new ClientesController($conexion);
+    if ($submenu == 'registro') {
+        require_once 'views/agregarcliente.php';
+    } else {
+        $clientecontroller->index(); // ya incluye la vista internamente
+    }
+
+} else if ($menu == 'inventario') {
+    if ($submenu == 'registro')
+        require_once 'views/registro_entrada.php';
+    else
+        require_once 'views/analisisProd.php';
+
+} else if ($menu == 'proveedores') {
+    if ($submenu == 'registro')
+        require_once 'views/RegistrarProveedor.php';
+    else
+        require_once 'views/proveedores.php';
+
+} else if ($menu == 'reportes') {
+    if ($submenu == 'generar')
+        require_once 'views/generar_nuevo_reporte.php';
+    else
+        require_once 'views/modulo_reportes.php';
+
+} else if ($menu == 'ventas') {
+    require_once 'controllers/VentasController.php';
+    $ventasController = new VentasController($conexion);
+
+    if ($submenu == 'buscar-productos') {
+        $ventasController->buscarProductos();
+
+    } elseif ($submenu == 'procesar-venta') {
+        $ventasController->procesarVenta();
+
+    } elseif ($submenu == 'detalle-venta') {
+        $ventasController->detalleVenta();
+
+    } elseif ($submenu == 'registrar-devolucion') {
+        $ventasController->registrarDevolucion();
+
+    } else {
+        $ventasController->index();
+    }
+}
+?>

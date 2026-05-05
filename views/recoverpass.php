@@ -8,11 +8,11 @@
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="../public/plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="public/plugins/fontawesome-free/css/all.min.css">
   <!-- icheck bootstrap -->
-  <link rel="stylesheet" href="../public/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+  <link rel="stylesheet" href="public/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
   <!-- Theme style -->
-  <link rel="stylesheet" href="../public/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="public/dist/css/adminlte.min.css">
   <style>
       body.login-page {
     background-color: #FFF5E5 !important;
@@ -50,7 +50,7 @@
 <div class="login-box">
   <div class="card card-outline card-primary">
     <div class="card-header text-center">
-      <a href="../public/index2.html" class="h1">Stock<b>It</b></a>
+      <a href="public/index2.html" class="h1">Stock<b>It</b></a>
     </div>
     <div class="card-body">
       <p class="login-box-msg">Introduce tu nueva contraseña</p>

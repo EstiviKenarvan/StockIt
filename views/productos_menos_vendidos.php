@@ -32,15 +32,15 @@ function crearLeyenda($color, $texto)
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Stock It | Productos Menos Vendidos</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <link rel="stylesheet" href="../public/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="public/plugins/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <link rel="stylesheet" href="../public/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-    <link rel="stylesheet" href="../public/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-    <link rel="stylesheet" href="../public/plugins/jqvmap/jqvmap.min.css">
-    <link rel="stylesheet" href="../public/dist/css/adminlte.min.css">
-    <link rel="stylesheet" href="../public/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-    <link rel="stylesheet" href="../public/plugins/daterangepicker/daterangepicker.css">
-    <link rel="stylesheet" href="../public/plugins/summernote/summernote-bs4.min.css">
+    <link rel="stylesheet" href="public/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <link rel="stylesheet" href="public/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <link rel="stylesheet" href="public/plugins/jqvmap/jqvmap.min.css">
+    <link rel="stylesheet" href="public/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="public/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+    <link rel="stylesheet" href="public/plugins/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" href="public/plugins/summernote/summernote-bs4.min.css">
     <style>
         .main-header.navbar, .main-header.navbar-white, .main-header.navbar-light, nav.main-header {
             background-color: #E8820C !important; border-bottom: none !important;
@@ -77,128 +77,13 @@ function crearLeyenda($color, $texto)
 <div class="wrapper">
 
     <div class="preloader flex-column justify-content-center align-items-center">
-        <img class="animation__shake" src="../public/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
+        <img class="animation__shake" src="public/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
     </div>
 
-    <!-- NAVBAR -->
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-        <ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></li>
-            <li class="nav-item d-none d-sm-inline-block"><a href="../index.php" class="nav-link">Home</a></li>
-        </ul>
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" data-widget="navbar-search" href="#" role="button"><i class="fas fa-search"></i></a>
-                <div class="navbar-search-block">
-                    <form class="form-inline">
-                        <div class="input-group input-group-sm">
-                            <input class="form-control form-control-navbar" type="search" placeholder="Search">
-                            <div class="input-group-append">
-                                <button class="btn btn-navbar" type="submit"><i class="fas fa-search"></i></button>
-                                <button class="btn btn-navbar" type="button" data-widget="navbar-search"><i class="fas fa-times"></i></button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#"><i class="far fa-bell"></i><span class="badge badge-warning navbar-badge">15</span></a>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    <span class="dropdown-item dropdown-header">15 Notifications</span>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-                </div>
-            </li>
-        </ul>
-    </nav>
-
-    <!-- SIDEBAR -->
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <a href="index3.html" class="brand-link">
-            <img src="../public/dist/img/logoStock.png" alt="Stock It Logo" class="brand-image img-circle elevation-3" style="opacity:.8">
-            <span class="brand-text font-weight-light">Stock It</span>
-        </a>
-        <div class="sidebar">
-            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                <div class="image"><img src="../public/dist/img/mininico.jpeg" class="img-circle elevation-2" alt="User Image"></div>
-                <div class="info"><a href="#" class="d-block">Nicol Valentina</a></div>
-            </div>
-            <div class="form-inline">
-                <div class="input-group" data-widget="sidebar-search">
-                    <input class="form-control form-control-sidebar" type="search" placeholder="Search">
-                    <div class="input-group-append"><button class="btn btn-sidebar"><i class="fas fa-search fa-fw"></i></button></div>
-                </div>
-            </div>
-            <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                    <li class="nav-item">
-              <a href="GestiondeProductos.php" class="nav-link">
-                <i class="ion-bag"></i>
-                <p>
-                  Productos
-                  <span class="right badge badge-danger">New</span>
-                </p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="analisisProductos.php" class="nav-link">
-                <i class="ion-pie-graph"></i>
-                <p>
-                  Analisis de Productos
-                  <span class="right badge badge-danger">New</span>
-                </p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="Clientes.php" class="nav-link">
-                <i class="ion-ios-people"></i>
-                <p>
-                  Clientes
-                  <span class="right badge badge-danger">New</span>
-                </p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="analisisProd.php" class="nav-link">
-                <i class="ion-clipboard"></i>
-                <p>
-                  Inventario
-                  <span class="right badge badge-danger">New</span>
-                </p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="Proveedores.php" class="nav-link">
-                <i class="ion-briefcase"></i>
-                <p>
-                  Proveedores
-                  <span class="right badge badge-danger">New</span>
-                </p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="modulo_reportes.php" class="nav-link">
-                <i class="ion-document-text"></i>
-                <p>
-                  Reportes
-                  <span class="right badge badge-danger">New</span>
-                </p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="ventas.php" class="nav-link">
-                <i class="ion-cash"></i>
-                <p>
-                  Tipo de Ventas
-                  <span class="right badge badge-danger">New</span>
-                </p>
-              </a>
-            </li>
-                </ul>
-            </nav>
-        </div>
-    </aside>
-
+<?php
+$paginaActiva = "analisis"; // o analisisproductos, productos, clientes,
+include __DIR__ . "/includes/barras.php";
+    ?>
     <!-- CONTENIDO -->
     <div class="content-wrapper">
         <div class="content-header">
@@ -224,10 +109,10 @@ function crearLeyenda($color, $texto)
                     <div class="col-md-8">
                         <div class="mb-4">
                             <!-- Activo: Menos vendidos -->
-                            <a href="productos_menos_vendidos.php" class="btn btn-danger mr-2" style="background-color:#C0392B; border-radius:10px; border:none;">
+                            <a href="?menu=analisisproductos&submenu=menosvendidos" class="btn btn-danger mr-2" style="background-color:#C0392B; border-radius:10px; border:none;">
                                 Productos menos vendidos
                             </a>
-                            <a href="analisisProductos.php" class="btn btn-outline-warning" style="color:#E8820C; border-color:#FFE0B2; border-radius:10px;">
+                            <a href="?menu=analisisproductos&submenu=masvendidos" class="btn btn-outline-warning" style="color:#E8820C; border-color:#FFE0B2; border-radius:10px;">
                                 Productos más Vendidos
                             </a>
                         </div>
@@ -272,14 +157,14 @@ function crearLeyenda($color, $texto)
     <aside class="control-sidebar control-sidebar-dark"></aside>
 </div>
 
-<script src="../public/plugins/jquery/jquery.min.js"></script>
-<script src="../public/plugins/jquery-ui/jquery-ui.min.js"></script>
+<script src="public/plugins/jquery/jquery.min.js"></script>
+<script src="public/plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>$.widget.bridge('uibutton', $.ui.button)</script>
-<script src="../public/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="../public/plugins/chart.js/Chart.min.js"></script>
-<script src="../public/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<script src="../public/dist/js/adminlte.js"></script>
-<script src="../public/dist/js/demo.js"></script>
+<script src="public/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="public/plugins/chart.js/Chart.min.js"></script>
+<script src="public/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<script src="public/dist/js/adminlte.js"></script>
+<script src="public/dist/js/demo.js"></script>
 <script>
 $(function () {
     new Chart($('#graficoBajaRotacion').get(0).getContext('2d'), {
