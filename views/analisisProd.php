@@ -1,329 +1,456 @@
 <?php
-// Función para crear una fila colapsable con COLOR VARIABLE
-function crearFilaColapsable($id, $titulo, $esRojo = false)
-{
-    $claseCard = $esRojo ? 'card-fila-roja' : 'card-fila';
-    $claseIcono = $esRojo ? 'style="background:#F5C6CB; color:#D92323;"' : '';
-    return "
-    <div class='card {$claseCard}'>
-        <div class='card-header' data-toggle='collapse' data-target='#collapse-{$id}'>
-            <h5 class='mb-0' style='color: #444;'>{$titulo}</h5>
-            <i class='fas fa-caret-down icono-collapse' {$claseIcono}></i>
-        </div>
-        <div id='collapse-{$id}' class='collapse'>
-            <div class='card-body'>
-                Detalles de baja rotación para {$titulo}...
-            </div>
-        </div>
-    </div>
-    ";
-}
-
-function crearLeyenda($color, $texto)
-{
-    return "
-    <div class='leyenda-item'>
-        <div class='color-box' style='background-color: {$color};'></div>
-        <span>{$texto}</span>
-    </div>
-    ";
-}
+include __DIR__ . "/includes/tarjeta.php";
+include __DIR__ . "/includes/tablas.php";
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>StockIt | Análisis de Productos</title>
-
+  <title>StockIt | Inventario</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <link rel="stylesheet" href="public/plugins/fontawesome-free/css/all.min.css">
-  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
   <link rel="stylesheet" href="public/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="public/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <style>
-    /* ── Navbar ─────────────────────────────────────────────── */
-    .main-header.navbar,
-    .main-header.navbar-white,
-    .main-header.navbar-light,
-    nav.main-header { background-color: #E8820C !important; border-bottom: none !important; }
-
-    .main-header .nav-link,
-    .main-header .nav-link i,
-    .main-header .navbar-nav .nav-item a,
-    .navbar-light .navbar-nav .nav-link { color: #ffffff !important; }
-
-    /* ── Sidebar ─────────────────────────────────────────────── */
-    .main-sidebar, .main-sidebar:before, .brand-link, .sidebar-dark-primary { background-color: #E8820C !important; }
-
-    .nav-sidebar .nav-link { background: transparent !important; color: #ffffff !important; }
-    .nav-sidebar .nav-link:hover { background-color: rgba(255,255,255,0.15) !important; }
-    .nav-sidebar .nav-link.active { background-color: rgba(0,0,0,0.15) !important; color: #ffffff !important; }
-    .nav-sidebar .nav-link p, .nav-sidebar .nav-link i { color: #ffffff !important; }
-    .brand-link .brand-text, .sidebar .user-panel .info a { color: #ffffff !important; }
-
-    .form-control-sidebar, .btn-sidebar { background-color: #ffffff !important; border: 1px solid #ddd !important; color: #333 !important; }
-    .btn-sidebar i { color: #333 !important; }
-    .user-panel, .form-inline { border-bottom: 1px solid rgba(255,255,255,0.2) !important; }
-
-    /* ── Contenido ───────────────────────────────────────────── */
-    .content-wrapper { background-color: #FFF5E5 !important; }
-
-    /* ── Filas rosadas (baja rotación) ───────────────────────── */
-    .card-fila-roja {
-      background: #FCE4E4 !important;
-      border-radius: 15px !important;
-      border: 1px solid #F5C6CB !important;
-      margin-bottom: 15px !important;
-      border-left: 8px solid #D92323 !important;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
-    }
-    .icono-collapse { float: right; padding: 5px; border-radius: 50%; }
-
-    /* ── Panel derecho rojo ──────────────────────────────────── */
-    .panel-derecho { background-color: white !important; border-radius: 15px !important; border: 1px solid #F5C6CB !important; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important; }
-    .panel-derecho-header { background-color: #FCE4E4 !important; padding: 15px 20px !important; border-bottom: 1px solid #F5C6CB !important; }
-    .titulo-panel-rojo { color: #D92323 !important; font-weight: bold !important; margin: 0 !important; }
-
-    /* ── Leyenda ─────────────────────────────────────────────── */
-    .leyenda-item { display: flex; align-items: center; margin-bottom: 8px; }
-    .color-box { width: 15px; height: 15px; border-radius: 3px; margin-right: 10px; }
-
-    /* ── Título naranja ──────────────────────────────────────── */
-    .titulo-naranja { color: #E8820C; font-style: italic; }
+    .main-header.navbar,.main-header.navbar-white,.main-header.navbar-light,nav.main-header{background-color:#E8820C!important;border-bottom:none!important}
+    .main-header .nav-link,.main-header .nav-link i,.navbar-light .navbar-nav .nav-link{color:#fff!important}
+    .main-sidebar,.main-sidebar:before,.brand-link,.sidebar-dark-primary{background-color:#E8820C!important}
+    .nav-sidebar .nav-link,.brand-link .brand-text,.sidebar .user-panel .info a,.nav-sidebar .nav-link i{color:#fff!important}
+    .content-wrapper{background-color:#FFF5E5!important}
+    .modal-header-stockit{background-color:#E8820C;color:white;border-radius:5px 5px 0 0}
+    .modal-header-stockit .close{color:white;opacity:1}
+    .text-orange{color:#E8820C!important}
+    .modal { z-index: 1060 !important; }
+    .modal-backdrop { z-index: 1050 !important; }
+    .resumen-box{background:#FFF5E5;border:1px dashed #FFE0B2;border-radius:10px;padding:12px 15px;min-height:42px}
+    .resumen-valor{font-size:1.4rem;font-weight:bold;color:#E8820C}
+    .resumen-stock-ok{font-size:1.4rem;font-weight:bold;color:#28a745}
+    .resumen-stock-bajo{font-size:1.4rem;font-weight:bold;color:#dc3545}
+    @keyframes flashUpdate{0%{background:#fff3cd}100%{background:transparent}}
+    .flash{animation:flashUpdate .5s ease-out}
   </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-  <!-- Preloader -->
-  <div class="preloader flex-column justify-content-center align-items-center">
-    <img class="animation__shake" src="public/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
-  </div>
-<?php
-$paginaActiva = "inventario"; // o clientes, reportes, ventas, etc.
-include __DIR__ . "/includes/barras.php";
-    ?>
+  <?php $paginaActiva = "inventario"; include __DIR__ . "/includes/barras.php"; ?>
 
-  <!-- ── Contenido ─────────────────────────────────────────────── -->
   <div class="content-wrapper">
-
     <div class="content-header">
       <div class="container-fluid">
-        <div class="row align-items-center mb-4">
-          <div class="col-md-6">
-            <h1 class="m-0">Análisis de <span class="titulo-naranja">Productos</span></h1>
-            <p class="text-muted">Productos con menor movimiento</p>
+        <div class="row mb-3 align-items-end">
+          <div class="col-sm-6">
+            <h1 class="m-0 d-inline" style="color:#333;font-weight:bold">Gestión de</h1>
+            <h1 class="m-0 d-inline" style="color:#dd6e12;font-style:italic"> Inventario</h1>
           </div>
-          <div class="col-md-6 text-right d-flex align-items-center justify-content-end">
-            <div class="position-relative d-inline-block mr-3" style="width: 200px;">
-              <i class="fas fa-search" style="position: absolute; left: 10px; top: 10px; color: #ccc;"></i>
-              <input type="text" class="form-control" style="padding-left: 30px; border-radius: 8px;" placeholder="Buscar...">
-            </div>
-            <a href="?menu=inventario&submenu=registro" class="btn" style="background-color: #E8820C; color: white; border-radius: 8px; font-weight: 500; white-space: nowrap; text-decoration: none;">
-    + Registrar Entrada
-</a>
+          <div class="col-sm-6 d-flex justify-content-end">
+            <button type="button" class="btn btn-outline-warning" onclick="abrirModal()">
+              <i class="fas fa-plus mr-1"></i> Registrar Entrada
+            </button>
           </div>
         </div>
+
+        <?php if (isset($_GET['exito'])): ?>
+          <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle mr-2"></i> Entrada registrada correctamente.
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+          </div>
+        <?php endif; ?>
       </div>
     </div>
 
     <section class="content">
       <div class="container-fluid">
 
-        <!-- Tarjetas de resumen -->
-        <div class="row mb-4">
-          <div class="col-lg-3 col-6">
-            <div class="small-box bg-white elevation-1" style="border-top: 5px solid #28a745; border-radius: 10px;">
-              <div class="inner">
-                <p class="text-muted mb-0">Entradas hoy</p>
-                <h3 class="text-success" style="font-weight: bold;">124</h3>
-                <div style="background-color: #e8f5e9; color: #28a745; padding: 2px 10px; border-radius: 5px; display: inline-block; font-size: 0.8rem;">Piezas</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-6">
-            <div class="small-box bg-white elevation-1" style="border-top: 5px solid #dc3545; border-radius: 10px;">
-              <div class="inner">
-                <p class="text-muted mb-0">Salidas hoy</p>
-                <h3 class="text-danger" style="font-weight: bold;">178</h3>
-                <div style="background-color: #ffebee; color: #dc3545; padding: 2px 10px; border-radius: 5px; display: inline-block; font-size: 0.8rem;">Piezas</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-6">
-            <div class="small-box bg-white elevation-1" style="border-top: 5px solid #fd7e14; border-radius: 10px;">
-              <div class="inner">
-                <p class="text-muted mb-0">Stock total</p>
-                <h3 style="color: #fd7e14; font-weight: bold;">1300</h3>
-                <div style="background-color: #fff3e0; color: #fd7e14; padding: 2px 10px; border-radius: 5px; display: inline-block; font-size: 0.8rem;">Productos disponibles</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-6">
-            <div class="small-box bg-white elevation-1" style="border-top: 5px solid #ffc107; border-radius: 10px;">
-              <div class="inner">
-                <p class="text-muted mb-0">Stock bajo</p>
-                <h3 class="text-warning" style="font-weight: bold;">5</h3>
-                <div style="background-color: #fffde7; color: #fbc02d; padding: 2px 10px; border-radius: 5px; display: inline-block; font-size: 0.8rem;">Productos</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gráficas -->
+        
         <div class="row">
-          <div class="col-md-8">
-            <div class="card card-outline" style="border-radius: 15px; background-color: #FFF9F2; border: 1px solid #FAD7A0;">
-              <div class="card-header border-0">
-                <h5 style="color: #A04000; font-weight: bold; margin-top: 10px;">Movimientos Semanales</h5>
-                <div class="card-tools">
-                  <span class="badge" style="color: #888;"><i class="fas fa-circle" style="color: #F39C12;"></i> Entradas</span>
-                  <span class="badge" style="color: #888;"><i class="fas fa-circle" style="color: #D35400;"></i> Salidas</span>
-                </div>
-              </div>
-              <div class="card-body">
-                <div style="border: 1px solid #FAD7A0; border-radius: 10px; padding: 15px; background-color: #FFF9F2;">
-                  <canvas id="barChartMovimientos" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <div class="card h-100" style="border-radius: 15px; border: 1px solid #FAD7A0; background-color: #FFF9F2;">
-              <div class="card-header border-0">
-                <h5 style="color: #A04000; font-weight: bold; margin-top: 10px;">Stock por Categoría</h5>
-              </div>
-              <div class="card-body">
-                <div style="border: 1px solid #FAD7A0; border-radius: 10px; padding: 15px; background-color: white; position: relative; height: 220px;">
-                  <canvas id="graficoStockCategoria"></canvas>
-                </div>
-                <div class="mt-4 px-2">
-                  <div class="d-flex justify-content-between mb-1">
-                    <span><i class="fas fa-circle" style="color: #E67E22;"></i> Pastelitos</span>
-                    <span class="font-weight-bold">40%</span>
-                  </div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <span><i class="fas fa-circle" style="color: #2E86C1;"></i> Rollos</span>
-                    <span class="font-weight-bold">25%</span>
-                  </div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <span><i class="fas fa-circle" style="color: #28B463;"></i> Galletas</span>
-                    <span class="font-weight-bold">20%</span>
-                  </div>
-                  <div class="d-flex justify-content-between">
-                    <span><i class="fas fa-circle" style="color: #AF601A;"></i> Otros</span>
-                    <span class="font-weight-bold">15%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <?= tarjeta("verde",  (string)$valorInvertidoHoy, "Invertido hoy",    "check") ?>
+          <?= tarjeta("rojo",   (string)$sinStock,          "Productos sin stock",  "calendario") ?>
+          <?= tarjeta("blanco", (string)$stockTotal,        "Stock total",   "bolsa") ?>
+          <?= tarjeta("azul",   (string)$stockBajo,         "Stock bajo", "estadisticas") ?>
         </div>
 
-        <!-- Tabla de movimientos -->
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <div class="card" style="border-radius: 15px; border: 1px solid #FAD7A0; background-color: white;">
-              <div class="card-header border-0" style="background-color: #FFF9F2;">
-                <h5 style="color: #A04000; font-weight: bold; margin-bottom: 0;">Lista de movimientos</h5>
-              </div>
-              <div class="card-body table-responsive p-0">
-                <table class="table table-hover text-nowrap">
-                  <thead style="background-color: #FDEBD0; color: #A04000;">
-                    <tr>
-                      <th class="pl-4">Fecha</th>
-                      <th>Producto</th>
-                      <th>Tipo</th>
-                      <th>Cantidad</th>
-                      <th>Responsable</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td class="pl-4">01/03/2026 09:12</td>
-                      <td>Gansito Marinela</td>
-                      <td><span style="color: #2E86C1;">▲ Entrada</span></td>
-                      <td><strong>+100 pzs</strong></td>
-                      <td>Ana López</td>
-                    </tr>
-                    <tr>
-                      <td class="pl-4">01/03/2026 11:30</td>
-                      <td>Chocorroles</td>
-                      <td><span style="color: #A93226;">▼ Salida</span></td>
-                      <td><strong>-45 pzs</strong></td>
-                      <td>Carlos Ruiz</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+        <?php
+        $columnas = ["#", "Producto", "Proveedor", "Cantidad", "Unidad", "Costo", "Factura", "Fecha Entrada", "Caducidad", "Lote", "Acciones"];
+        $datos = [];
+        foreach ($movimientos as $m) {
+            $datos[] = [
+                $m['idMovimiento'],
+                $m['nombreProducto']  ?? '—',
+                $m['nombreProveedor'] ?? '—',
+                $m['cantidad'],
+                $m['unidad'],
+                '$' . number_format($m['costo'], 2),
+                $m['factura'] ?: '—',
+                date('d/m/Y', strtotime($m['fechaEntrada'])),
+                $m['fechaCaducidad'] ? date('d/m/Y', strtotime($m['fechaCaducidad'])) : '—',
+                $m['Lote'] ?: '—',
+                "<button class='btn btn-xs btn-danger btn-borrar' data-id='{$m['idMovimiento']}'>
+                    <i class='fas fa-trash'></i>
+                 </button>"
+            ];
+        }
+        echo crearTabla("Movimientos de Inventario", $columnas, $datos, "tabla_inventario");
+        ?>
+      </div>
+    </section>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       MODAL: REGISTRAR ENTRADA
+  ══════════════════════════════════════ -->
+  <div class="modal fade" id="modalEntrada" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header modal-header-stockit">
+          <h5 class="modal-title"><i class="fas fa-truck-loading mr-2"></i>Registrar Entrada de Inventario</h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
 
-      </div><!-- /.container-fluid -->
-    </section><!-- /.content -->
+        <form id="formEntrada" action="index.php?menu=inventario&submenu=registro" method="POST">
+          <div class="modal-body">
+            <div class="row">
 
-  </div><!-- /.content-wrapper -->
+              <!-- ── Formulario ── -->
+              <div class="col-md-8">
+                <h5 class="text-orange font-weight-bold"><i class="fas fa-box mr-2"></i>Información del producto</h5>
+                <hr>
 
-  <footer class="main-footer">
-    <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong>
-    All rights reserved.
-    <div class="float-right d-none d-sm-inline-block"><b>Version</b> 3.1.0</div>
-  </footer>
+                <div class="form-group position-relative">
+                  <label>Producto *</label>
+                  <input type="text" id="m_buscar" class="form-control" placeholder="Buscar por nombre o código..." autocomplete="off">
+                  <div id="m_resultados" class="list-group position-absolute w-100 shadow" style="z-index:2000;max-height:180px;overflow-y:auto"></div>
+                  <input type="hidden" name="idProducto" id="m_idProducto" required>
+                </div>
 
-</div><!-- /.wrapper -->
+                <div id="m_info_prod" class="d-flex align-items-center p-3 mb-3" style="background:#E7F1FF;border:1px solid #B6D4FE;border-radius:10px;display:none!important">
+                  <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mr-3" style="width:40px;height:40px;flex-shrink:0">
+                    <i class="fas fa-box text-white"></i>
+                  </div>
+                  <div>
+                    <h6 class="m-0 font-weight-bold text-primary" id="m_prod_nombre_cod">—</h6>
+                    <small class="text-muted">
+                      Stock actual: <span class="text-primary font-weight-bold" id="m_prod_stock">—</span>
+                      &nbsp;|&nbsp; Precio compra actual: <span class="text-warning font-weight-bold" id="m_prod_precio">—</span>
+                    </small>
+                  </div>
+                </div>
 
-<!-- Scripts -->
+                <h5 class="text-orange font-weight-bold mt-3"><i class="fas fa-list mr-2"></i>Detalles de la entrada</h5>
+                <hr>
+
+                <div class="row">
+                  <div class="col-md-4 form-group">
+                    <label>Cantidad *</label>
+                    <input type="number" name="cantidad" id="m_cantidad" class="form-control" placeholder="0" min="1" required>
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>Unidad</label>
+                    <select name="unidad" id="m_unidad" class="form-control">
+                      <option>Piezas</option>
+                      <option>Cajas</option>
+                      <option>Kg</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>Costo unitario</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend"><span class="input-group-text">$</span></div>
+                      <input type="number" name="costo" id="m_costo" class="form-control" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-4 form-group">
+                    <label>Fecha de entrada *</label>
+                    <input type="date" name="fechaEntrada" id="m_fechaEntrada" class="form-control" required>
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>Fecha caducidad</label>
+                    <input type="date" name="fechaCaducidad" id="m_caducidad" class="form-control">
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>No. de lote</label>
+                    <input type="text" name="Lote" id="m_lote" class="form-control" placeholder="LOTE-001">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-8 form-group">
+                    <label>Proveedor</label>
+                    <select name="idProveedor" id="m_proveedor" class="form-control">
+                      <option value="">— Sin proveedor —</option>
+                      <?php foreach ($proveedores as $prov): ?>
+                        <option value="<?= $prov['idProveedor'] ?>"><?= htmlspecialchars($prov['nombreProveedor']) ?></option>
+                      <?php endforeach; ?>
+                    </select>
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>No. de factura</label>
+                    <input type="text" name="factura" id="m_factura" class="form-control" placeholder="FAC-2025-001">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Observaciones</label>
+                  <textarea name="Observaciones" id="m_obs" class="form-control" rows="2" placeholder="Notas adicionales..."></textarea>
+                </div>
+              </div>
+
+              <!-- ── Resumen ── -->
+              <div class="col-md-4">
+                <div class="card" style="border-radius:15px;border:1px solid #FFE0B2;overflow:hidden">
+                  <div class="card-header" style="background:#FFF5E5;border-bottom:1px solid #FFE0B2">
+                    <h6 class="text-orange font-weight-bold m-0"><i class="fas fa-clipboard-list mr-2"></i>Resumen en tiempo real</h6>
+                  </div>
+                  <div class="card-body">
+                    <label class="small text-muted">Producto</label>
+                    <div class="resumen-box mb-2" id="r_producto"><span class="text-muted">— Sin seleccionar —</span></div>
+
+                    <label class="small text-muted">Proveedor</label>
+                    <div class="resumen-box mb-2" id="r_proveedor"><span class="text-muted">—</span></div>
+
+                    <div class="row mb-2">
+                      <div class="col-6">
+                        <label class="small text-muted">Lote</label>
+                        <div class="resumen-box" id="r_lote"><span class="text-muted">—</span></div>
+                      </div>
+                      <div class="col-6">
+                        <label class="small text-muted">Factura</label>
+                        <div class="resumen-box" id="r_factura"><span class="text-muted">—</span></div>
+                      </div>
+                    </div>
+
+                    <hr style="border-color:#FFE0B2">
+
+                    <div class="row mb-2">
+                      <div class="col-6">
+                        <label class="small text-muted">Cantidad</label>
+                        <div class="resumen-valor" id="r_cantidad">0 pzs</div>
+                      </div>
+                      <div class="col-6">
+                        <label class="small text-muted">Costo unit.</label>
+                        <div class="resumen-valor" id="r_costoUnit">$0.00</div>
+                      </div>
+                    </div>
+
+                    <div class="p-3 mb-2" style="background:#FFF5E5;border-radius:10px;border:1px solid #FFE0B2">
+                      <label class="small text-muted d-block">Costo total</label>
+                      <div style="font-size:2rem;font-weight:bold;color:#E8820C" id="r_costoTotal">$0.00</div>
+                    </div>
+
+                    <hr style="border-color:#FFE0B2">
+
+                    <div class="row mb-2">
+                      <div class="col-6">
+                        <label class="small text-muted">Stock actual</label>
+                        <div style="font-size:1.2rem;font-weight:bold;color:#555" id="r_stockActual">—</div>
+                      </div>
+                      <div class="col-6">
+                        <label class="small text-muted">Stock resultante</label>
+                        <div class="resumen-stock-ok" id="r_stockResultante">—</div>
+                      </div>
+                    </div>
+
+                    <label class="small text-muted">Caducidad</label>
+                    <div class="resumen-box" id="r_caducidad"><span class="text-muted">— Sin especificar —</span></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="modal-footer bg-white border-top">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-warning px-4">
+              <i class="fas fa-save mr-1"></i> Guardar Entrada
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
 <script src="public/plugins/jquery/jquery.min.js"></script>
-<script src="public/plugins/jquery-ui/jquery-ui.min.js"></script>
-<script>$.widget.bridge('uibutton', $.ui.button)</script>
 <script src="public/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="public/plugins/chart.js/Chart.min.js"></script>
-<script src="public/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
 <script src="public/dist/js/adminlte.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-$(function() {
-  // Gráfica de Movimientos Semanales (Barras)
-  var barCtx = $('#barChartMovimientos').get(0).getContext('2d');
-  new Chart(barCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-      datasets: [
-        { label: 'Entradas', backgroundColor: '#F39C12', data: [65, 59, 80, 81, 56, 55, 40] },
-        { label: 'Salidas',  backgroundColor: '#D35400', data: [28, 48, 40, 19, 86, 27, 90] }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: { yAxes: [{ ticks: { beginAtZero: true } }] }
-    }
-  });
+const productos = <?= json_encode(array_values($productos)) ?>;
 
-  // Gráfica de Stock por Categoría (Dona)
-  var donaCtx = document.getElementById('graficoStockCategoria').getContext('2d');
-  new Chart(donaCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Pastelitos', 'Rollos', 'Galletas', 'Otros'],
-      datasets: [{
-        data: [40, 25, 20, 15],
-        backgroundColor: ['#E67E22', '#2E86C1', '#28B463', '#AF601A'],
-        borderWidth: 5,
-        borderColor: '#FFF9F2'
-      }]
-    },
-    options: {
-      maintainAspectRatio: false,
-      cutoutPercentage: 70,
-      legend: { display: false }
+let stockActual       = 0;
+let precioCompraActual = 0;
+
+// ── Fecha local correcta ──────────────────────────────────
+function fechaHoy() {
+    const h = new Date();
+    return h.getFullYear() + '-' +
+        String(h.getMonth() + 1).padStart(2, '0') + '-' +
+        String(h.getDate()).padStart(2, '0');
+}
+
+// ── Abrir modal ───────────────────────────────────────────
+function abrirModal() {
+    $('#formEntrada')[0].reset();
+    $('input[name="actualizarPrecio"]').remove();
+    $('#m_fechaEntrada').val(fechaHoy());
+    $('#m_info_prod').hide();
+    limpiarResumen();
+    $('#modalEntrada').modal('show');
+}
+
+// ── Buscador ──────────────────────────────────────────────
+$('#m_buscar').on('keyup', function() {
+    const q = $(this).val().toLowerCase().trim();
+    const res = $('#m_resultados');
+    res.empty();
+    if (q.length < 2) return;
+
+    const filtrados = productos.filter(p =>
+        p.nombreProducto.toLowerCase().includes(q) ||
+        (p.codigoBarras && p.codigoBarras.includes(q))
+    ).slice(0, 8);
+
+    if (!filtrados.length) {
+        res.append('<div class="list-group-item text-muted">Sin resultados</div>');
+        return;
     }
-  });
+    filtrados.forEach(p => {
+        const item = $(`<a class="list-group-item list-group-item-action d-flex justify-content-between">
+            <span>${p.nombreProducto}</span>
+            <small class="text-muted">Stock: ${p.stockEnGeneral}</small>
+        </a>`);
+        item.on('click', () => seleccionarProducto(p));
+        res.append(item);
+    });
+});
+
+function seleccionarProducto(p) {
+    $('#m_buscar').val(p.nombreProducto);
+    $('#m_idProducto').val(p.idProducto);
+    $('#m_resultados').empty();
+
+    stockActual        = parseInt(p.stockEnGeneral) || 0;
+    precioCompraActual = parseFloat(p.precioCompra) || 0;
+
+    $('#m_prod_nombre_cod').text(`${p.nombreProducto} — Cód: ${p.codigoBarras || 'S/N'}`);
+    $('#m_prod_stock').text(`${stockActual} pzs`);
+    $('#m_prod_precio').text(`$${precioCompraActual.toFixed(2)}`);
+    $('#m_info_prod').show();
+
+    $('#r_producto').html(`<strong>${p.nombreProducto}</strong>`);
+    $('#r_stockActual').text(`${stockActual} pzs`);
+    actualizarResumen();
+}
+
+// ── Resumen en tiempo real ────────────────────────────────
+function actualizarResumen() {
+    const cantidad  = parseFloat($('#m_cantidad').val()) || 0;
+    const costo     = parseFloat($('#m_costo').val())    || 0;
+    const unidad    = $('#m_unidad').val();
+    const proveedor = $('#m_proveedor option:selected').text();
+    const lote      = $('#m_lote').val().trim();
+    const factura   = $('#m_factura').val().trim();
+    const caducidad = $('#m_caducidad').val();
+
+    flash('r_cantidad',   `${cantidad} ${unidad.toLowerCase()}`);
+    flash('r_costoUnit',  `$${costo.toFixed(2)}`);
+    flash('r_costoTotal', `$${(cantidad * costo).toFixed(2)}`);
+
+    const resultante = stockActual + cantidad;
+    const elRes = document.getElementById('r_stockResultante');
+    elRes.textContent = `${resultante} pzs`;
+    elRes.className   = resultante <= 10 ? 'resumen-stock-bajo' : 'resumen-stock-ok';
+
+    $('#r_proveedor').html(proveedor && proveedor !== '— Sin proveedor —'
+        ? `<strong>${proveedor}</strong>` : '<span class="text-muted">—</span>');
+    $('#r_lote').html(lote    ? `<strong>${lote}</strong>`    : '<span class="text-muted">—</span>');
+    $('#r_factura').html(factura ? `<strong>${factura}</strong>` : '<span class="text-muted">—</span>');
+
+    if (caducidad) {
+        const diff  = Math.ceil((new Date(caducidad) - new Date()) / 86400000);
+        const color = diff < 0 ? '#dc3545' : diff <= 30 ? '#ffc107' : '#28a745';
+        const label = diff < 0 ? ' ⚠ Vencida' : diff <= 30 ? ` ⚠ ${diff} días` : '';
+        const fecha = new Date(caducidad + 'T00:00:00').toLocaleDateString('es-MX');
+        $('#r_caducidad').html(`<strong style="color:${color}">${fecha}${label}</strong>`);
+    } else {
+        $('#r_caducidad').html('<span class="text-muted">— Sin especificar —</span>');
+    }
+}
+
+function flash(id, valor) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = valor;
+    el.classList.remove('flash');
+    void el.offsetWidth;
+    el.classList.add('flash');
+}
+
+function limpiarResumen() {
+    stockActual = 0; precioCompraActual = 0;
+    ['r_cantidad','r_costoUnit','r_costoTotal','r_stockActual','r_stockResultante'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = id.includes('costo') ? '$0.00' : '—';
+    });
+    $('#r_producto,#r_proveedor,#r_lote,#r_factura,#r_caducidad').html('<span class="text-muted">—</span>');
+}
+
+$(document).on('input change', '#m_cantidad,#m_costo,#m_unidad,#m_proveedor,#m_lote,#m_factura,#m_caducidad', actualizarResumen);
+
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('#m_buscar, #m_resultados').length)
+        $('#m_resultados').empty();
+});
+
+// ── Interceptar submit: alerta si costo subió ─────────────
+$('#formEntrada').on('submit', function(e) {
+    const costoNuevo = parseFloat($('#m_costo').val()) || 0;
+
+    if (costoNuevo > precioCompraActual && precioCompraActual > 0) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: '⚠ El costo subió',
+            html: `El precio de compra anterior era <b>$${precioCompraActual.toFixed(2)}</b>
+                   y el nuevo es <b>$${costoNuevo.toFixed(2)}</b>.<br><br>
+                   ¿Deseas actualizar el precio de compra del producto?`,
+            showDenyButton: true,
+            confirmButtonText: 'Sí, actualizar precio',
+            denyButtonText: 'No, solo registrar entrada',
+            confirmButtonColor: '#E8820C'
+        }).then(r => {
+            if (r.isConfirmed) {
+                $('<input>').attr({ type:'hidden', name:'actualizarPrecio', value:'1' })
+                            .appendTo('#formEntrada');
+            }
+            $('#formEntrada').off('submit').submit();
+        });
+    }
+});
+
+// ── Borrar movimiento ─────────────────────────────────────
+$(document).on('click', '.btn-borrar', function() {
+    const id = $(this).data('id');
+    Swal.fire({
+        title: '¿Eliminar movimiento?',
+        text: 'Se borrará este registro del inventario.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        confirmButtonText: 'Sí, eliminar'
+    }).then(r => {
+        if (r.isConfirmed)
+            window.location = `index.php?menu=inventario&submenu=borrar&id=${id}`;
+    });
 });
 </script>
 </body>

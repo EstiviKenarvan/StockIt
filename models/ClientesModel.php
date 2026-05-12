@@ -8,7 +8,14 @@ class ClientesModel {
 
     public function consultar() {
         $sql = "SELECT * FROM clientes ORDER BY idCliente ASC";
-        return $this->db->query($sql)->fetchAll();
+        return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function consultarPorId($idCliente) {
+        $sql = "SELECT * FROM clientes WHERE idCliente = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$idCliente]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function insertar($tipoCliente, $cliente_nombre, $telefono, $email, $credito, $estado, $notas, $TotalCompras, $fechaPago, $TotalCredito) {
@@ -18,23 +25,10 @@ class ClientesModel {
         return $stmt->execute([
             trim($tipoCliente), trim($cliente_nombre),
             trim($telefono),    trim($email),
-            trim($credito),     trim($estado),
-            trim($notas),       trim($TotalCompras),
-            trim($fechaPago),   trim($TotalCredito)
+            $credito,           trim($estado),
+            trim($notas),       $TotalCompras,
+            $fechaPago,         trim($TotalCredito)
         ]);
-    }
-
-    public function eliminar($idCliente) {
-        $sql = "DELETE FROM clientes WHERE idCliente = ?";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$idCliente]);
-    }
-
-    public function consultarPorId($idCliente) {
-        $sql = "SELECT * FROM clientes WHERE idCliente = ?";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$idCliente]);
-        return $stmt->fetch();
     }
 
     public function actualizar($idCliente, $tipoCliente, $telefono, $email, $credito, $estado, $notas, $TotalCompras, $fechaPago, $TotalCredito) {
@@ -45,11 +39,17 @@ class ClientesModel {
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             trim($tipoCliente), trim($telefono),
-            trim($email),       trim($credito),
+            trim($email),       $credito,
             trim($estado),      trim($notas),
-            trim($TotalCompras), trim($fechaPago),
+            $TotalCompras,      $fechaPago,
             trim($TotalCredito), $idCliente
         ]);
+    }
+
+    public function eliminar($idCliente) {
+        $sql = "DELETE FROM clientes WHERE idCliente = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$idCliente]);
     }
 }
 ?>

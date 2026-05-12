@@ -3,68 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>StockIt | Agregar Cliente</title>
-
+  <title>StockIt | <?= isset($cliente) ? 'Editar' : 'Agregar' ?> Cliente</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <link rel="stylesheet" href="public/plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
   <link rel="stylesheet" href="public/dist/css/adminlte.min.css">
-
   <style>
-    /* ── Navbar ─────────────────────────────────────────────── */
-    .main-header.navbar,
-    .main-header.navbar-white,
-    .main-header.navbar-light,
-    nav.main-header { background-color: #E8820C !important; border-bottom: none !important; }
-
-    .main-header .nav-link,
-    .main-header .nav-link i,
-    .main-header .navbar-nav .nav-item a,
-    .navbar-light .navbar-nav .nav-link { color: #ffffff !important; }
-
-    /* ── Sidebar ─────────────────────────────────────────────── */
-    .main-sidebar, .main-sidebar:before, .brand-link, .sidebar-dark-primary { background-color: #E8820C !important; }
-
-    .nav-sidebar .nav-link { background: transparent !important; color: #ffffff !important; }
-    .nav-sidebar .nav-link:hover { background-color: rgba(255,255,255,0.15) !important; }
-    .nav-sidebar .nav-link.active { background-color: rgba(0,0,0,0.15) !important; color: #ffffff !important; }
-    .nav-sidebar .nav-link p, .nav-sidebar .nav-link i { color: #ffffff !important; }
-    .brand-link .brand-text, .sidebar .user-panel .info a { color: #ffffff !important; }
-
-    .form-control-sidebar, .btn-sidebar { background-color: #ffffff !important; border: 1px solid #ddd !important; color: #333 !important; }
-    .btn-sidebar i { color: #333 !important; }
-    .user-panel, .form-inline { border-bottom: 1px solid rgba(255,255,255,0.2) !important; }
-
-    /* ── Contenido ───────────────────────────────────────────── */
-    .content-wrapper { background-color: #FFF5E5 !important; }
-
-    /* ── Formulario ──────────────────────────────────────────── */
-    .text-orange-dark { color: #E8820C; font-weight: bold; }
-    .btn-orange { background-color: #E8820C; color: white; border-radius: 8px; }
-    .btn-orange:hover { background-color: #d1750a; color: white; }
-    .form-control { border-radius: 6px; border: 1px solid #ccc; }
-    .card-custom { border-radius: 15px; border-top: 5px solid #E8820C; }
+    .main-header.navbar,.main-header.navbar-white,.main-header.navbar-light,nav.main-header{background-color:#E8820C!important;border-bottom:none!important}
+    .main-header .nav-link,.main-header .nav-link i,.navbar-light .navbar-nav .nav-link{color:#fff!important}
+    .main-sidebar,.main-sidebar:before,.brand-link,.sidebar-dark-primary{background-color:#E8820C!important}
+    .nav-sidebar .nav-link{background:transparent!important;color:#fff!important}
+    .nav-sidebar .nav-link:hover{background-color:rgba(255,255,255,.15)!important}
+    .nav-sidebar .nav-link.active{background-color:rgba(0,0,0,.15)!important;color:#fff!important}
+    .nav-sidebar .nav-link p,.nav-sidebar .nav-link i{color:#fff!important}
+    .brand-link .brand-text,.sidebar .user-panel .info a{color:#fff!important}
+    .form-control-sidebar,.btn-sidebar{background-color:#fff!important;border:1px solid #ddd!important;color:#333!important}
+    .user-panel,.form-inline{border-bottom:1px solid rgba(255,255,255,.2)!important}
+    .content-wrapper{background-color:#FFF5E5!important}
+    .text-orange-dark{color:#E8820C;font-weight:bold}
+    .btn-orange{background-color:#E8820C;color:white;border-radius:8px}
+    .btn-orange:hover{background-color:#d1750a;color:white}
+    .card-custom{border-radius:15px;border-top:5px solid #E8820C}
   </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-  <!-- Preloader -->
-  <div class="preloader flex-column justify-content-center align-items-center">
-    <img class="animation__shake" src="public/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
-  </div>
+  <?php $paginaActiva = "clientes"; include __DIR__ . "/includes/barras.php"; ?>
 
-  <?php
-  $paginaActiva = "clientes"; // o analisisproductos, productos, clientes,  
-  include __DIR__ . "/includes/barras.php";
-  ?>
-  <!-- ── Contenido ─────────────────────────────────────────────── -->
   <div class="content-wrapper">
     <div class="content-header">
       <div class="container-fluid">
         <p class="mb-0 small">
-          <a href="?menu=clientes&submenu=registro" class="text-warning">Gestión de Clientes</a>
-          / <span class="text-muted">Agregar Cliente</span>
+          <a href="?menu=clientes" class="text-warning">Gestión de Clientes</a>
+          / <span class="text-muted"><?= isset($cliente) ? 'Editar Cliente' : 'Agregar Cliente' ?></span>
         </p>
       </div>
     </div>
@@ -73,40 +45,58 @@
       <div class="container-fluid">
         <div class="card card-custom shadow-sm">
           <div class="card-header bg-white">
-            <h4 class="text-orange-dark mb-0"><i class="fas fa-user-plus mr-2"></i>Agregar nuevo cliente</h4>
+            <h4 class="text-orange-dark mb-0">
+              <i class="fas fa-<?= isset($cliente) ? 'user-edit' : 'user-plus' ?> mr-2"></i>
+              <?= isset($cliente) ? 'Editar cliente' : 'Agregar nuevo cliente' ?>
+            </h4>
             <small class="text-muted">Ingresa la información del cliente</small>
           </div>
 
-          <form action="?menu=clientes&submenu=registro" method="POST">
+          <?php
+            // Si es editar usa la URL con id, si es crear usa registro
+            $action = isset($cliente)
+              ? "?menu=clientes&submenu=editar&id={$cliente['idCliente']}"
+              : "?menu=clientes&submenu=registro";
+          ?>
+          <form action="<?= $action ?>" method="POST">
             <div class="card-body">
 
               <h6 class="text-orange-dark mb-3">Datos personales</h6>
               <div class="row">
                 <div class="col-md-6 form-group">
-                  <label>Nombre(s) *</label>
-                  <input type="text" class="form-control" placeholder="Ej. Nicol" required>
+                  <label>Nombre completo <span class="text-danger">*</span></label>
+                  <input type="text" name="cliente_nombre" class="form-control"
+                         placeholder="Ej. Nicol Flores García" required
+                         value="<?= htmlspecialchars($cliente['cliente_nombre'] ?? '') ?>"
+                         <?= isset($cliente) ? '' : '' ?>>
+                  <?php if (isset($cliente)): ?>
+                    <small class="text-muted">El nombre no se puede editar.</small>
+                  <?php endif; ?>
                 </div>
-                <div class="col-md-6 form-group">
-                  <label>Apellidos *</label>
-                  <input type="text" class="form-control" placeholder="Ej. Flores García" required>
-                </div>
-              </div>
-
-              <div class="row">
                 <div class="col-md-3 form-group">
-                  <label>Teléfono *</label>
-                  <input type="text" class="form-control" placeholder="2467654387" required>
+                  <label>Teléfono</label>
+                  <input type="text" name="telefono" class="form-control"
+                         placeholder="2467654387"
+                         value="<?= htmlspecialchars($cliente['telefono'] ?? '') ?>">
                 </div>
-                <div class="col-md-5 form-group">
-                  <label>Correo electrónico</label>
-                  <input type="email" class="form-control" placeholder="correo@ejemplo.com">
+                <div class="col-md-3 form-group">
+                  <label>Estado <span class="text-danger">*</span></label>
+                  <select name="estado" class="form-control" required>
+                    <?php foreach (['Activo','Inactivo','VIP'] as $est): ?>
+                      <option value="<?= $est ?>" <?= (($cliente['estado'] ?? 'Activo') === $est) ? 'selected' : '' ?>>
+                        <?= $est ?>
+                      </option>
+                    <?php endforeach; ?>
+                  </select>
                 </div>
               </div>
 
               <div class="row">
-                <div class="col-md-12 form-group">
-                  <label>Dirección</label>
-                  <input type="text" class="form-control" placeholder="Calle, número, colonia, ciudad...">
+                <div class="col-md-6 form-group">
+                  <label>Correo electrónico</label>
+                  <input type="email" name="email" class="form-control"
+                         placeholder="correo@ejemplo.com"
+                         value="<?= htmlspecialchars($cliente['email'] ?? '') ?>">
                 </div>
               </div>
 
@@ -115,25 +105,22 @@
               <h6 class="text-orange-dark mb-3">Información comercial</h6>
               <div class="row">
                 <div class="col-md-4 form-group">
-                  <label>Tipo de cliente</label>
-                  <select class="form-control">
-                    <option>Seleccionar tipo</option>
-                    <option>Minorista</option>
-                    <option>Mayorista</option>
+                  <label>Tipo de cliente <span class="text-danger">*</span></label>
+                  <select name="tipoCliente" class="form-control" required>
+                    <?php foreach (['Minorista','Mayorista','Frecuente'] as $tipo): ?>
+                      <option value="<?= $tipo ?>" <?= (($cliente['tipoCliente'] ?? '') === $tipo) ? 'selected' : '' ?>>
+                        <?= $tipo ?>
+                      </option>
+                    <?php endforeach; ?>
                   </select>
                 </div>
                 <div class="col-md-4 form-group">
                   <label>Crédito disponible</label>
                   <div class="input-group">
                     <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                    <input type="number" class="form-control" placeholder="0.00" step="0.01">
-                  </div>
-                </div>
-                <div class="col-md-4 form-group">
-                  <label>Días de crédito</label>
-                  <div class="input-group">
-                    <input type="number" class="form-control" placeholder="0">
-                    <div class="input-group-append"><span class="input-group-text">días</span></div>
+                    <input type="number" name="credito" class="form-control"
+                           placeholder="0.00" step="0.01" min="0"
+                           value="<?= htmlspecialchars($cliente['credito'] ?? '0') ?>">
                   </div>
                 </div>
               </div>
@@ -141,14 +128,15 @@
               <div class="row">
                 <div class="col-md-12 form-group">
                   <label>Notas</label>
-                  <textarea class="form-control" rows="3" placeholder="Observaciones del cliente..."></textarea>
+                  <textarea name="notas" class="form-control" rows="3"
+                            placeholder="Observaciones del cliente..."><?= htmlspecialchars($cliente['notas'] ?? '') ?></textarea>
                 </div>
               </div>
             </div>
 
             <div class="card-footer bg-white border-top-0 pb-4">
               <button type="submit" class="btn btn-orange px-5 mr-2">
-                <i class="fas fa-save mr-1"></i> Guardar cliente
+                <i class="fas fa-save mr-1"></i> <?= isset($cliente) ? 'Actualizar cliente' : 'Guardar cliente' ?>
               </button>
               <a href="?menu=clientes" class="btn btn-outline-secondary px-5">
                 <i class="fas fa-times mr-1"></i> Cancelar
@@ -159,7 +147,6 @@
       </div>
     </section>
   </div>
-
 </div>
 
 <script src="public/plugins/jquery/jquery.min.js"></script>

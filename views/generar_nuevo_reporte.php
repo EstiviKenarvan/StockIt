@@ -62,11 +62,6 @@
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-    <!-- Preloader -->
-    <div class="preloader flex-column justify-content-center align-items-center">
-        <img class="animation__shake" src="public/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
-    </div>
-
 <?php
     $paginaActiva = "productos"; // o clientes, reportes, ventas, etc.
      include __DIR__ . "/includes/barras.php";

@@ -81,15 +81,28 @@ public function insertarModoVenta($idCliente, $idProducto, $cantidad) {
     $stmt->execute([$idCliente ?? 1, $idProducto, $cantidad]);
     return $this->db->lastInsertId();
 }
-    public function buscarProductos($termino) {
-    $sql = "SELECT idProducto, nombreProducto, precioVenta, stockEnGeneral
-            FROM productos
-            WHERE nombreProducto LIKE ? 
-            AND estado IN ('Activo', 'Disponible') 
-            AND stockEnGeneral > 0
-            LIMIT 10";
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute(['%' . $termino . '%']);
+public function buscarProductos($termino, $barcode = null) {
+    if ($barcode !== null) {
+        // Búsqueda exacta por código de barras
+        $sql = "SELECT idProducto, nombreProducto, precioVenta, stockEnGeneral, codigoBarras
+                FROM productos
+                WHERE codigoBarras = ?
+                AND estado IN ('Activo', 'Disponible')
+                AND stockEnGeneral > 0
+                LIMIT 5";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$barcode]);
+    } else {
+        // Búsqueda por nombre
+        $sql = "SELECT idProducto, nombreProducto, precioVenta, stockEnGeneral, codigoBarras
+                FROM productos
+                WHERE nombreProducto LIKE ?
+                AND estado IN ('Activo', 'Disponible')
+                AND stockEnGeneral > 0
+                LIMIT 10";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['%' . $termino . '%']);
+    }
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -128,5 +141,14 @@ public function insertarModoVenta($idCliente, $idProducto, $cantidad) {
         $sql = "SELECT COALESCE(SUM(totalVenta), 0) FROM ventas WHERE DATE(fechaHora) = CURDATE()";
         return $this->db->query($sql)->fetchColumn();
     }
+    public function consultarAlertas() {
+    $sql = "SELECT idProducto, nombreProducto, stockEnGeneral, fechaCaducidad
+            FROM productos
+            WHERE stockEnGeneral <= 5
+               OR (fechaCaducidad IS NOT NULL AND fechaCaducidad <= DATE_ADD(CURDATE(), INTERVAL 30 DAY))
+            ORDER BY stockEnGeneral ASC
+            LIMIT 20";
+    return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+}
 }
 ?>

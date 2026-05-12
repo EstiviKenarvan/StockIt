@@ -63,9 +63,6 @@ function crearCardProveedor($nombre, $tel, $tags, $status, $fecha, $bordeColor =
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-    <div class="preloader flex-column justify-content-center align-items-center">
-        <img class="animation__shake" src="public/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
-    </div>
 <?php
 $paginaActiva = "proveedores"; // o clientes, reportes, ventas, etc.
 include __DIR__ . "/includes/barras.php";
@@ -140,11 +137,7 @@ include __DIR__ . "/includes/barras.php";
         </div>
     </div>
 
-    <footer class="main-footer">
-        <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
-        <div class="float-right d-none d-sm-inline-block"><b>Version</b> 3.1.0</div>
-    </footer>
-    <aside class="control-sidebar control-sidebar-dark"></aside>
+    
 </div>
 
 <script src="public/plugins/jquery/jquery.min.js"></script>

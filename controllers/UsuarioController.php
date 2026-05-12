@@ -1,119 +1,104 @@
 <?php
-require_once 'models/UsuarioModel.php';
+require_once __DIR__ . '/../models/UsuariosModel.php';
 
-class UsuarioController {
+class UsuarioController
+{
     private $modelo;
-    
-    public function __construct($conexion) {
-        $this->modelo = new UsuarioModel($conexion);
+
+    public function __construct($conexion)
+    {
+        $this->modelo = new UsuariosModel($conexion);
     }
 
-    // ── Lista todos los usuarios ──────────────────────────────
-    public function index(): void {
-        try {
-            $usuarios = $this->modelo->consultar();
-
-            $viewPath = 'views/UsuarioView.php';
-            if (!file_exists($viewPath)) {
-                throw new Exception("La vista '$viewPath' no se encuentra en el servidor.");
-            }
-            include $viewPath;
-
-        } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
-        }
+    // ── Lista todos los usuarios ──────────────────────────
+    public function index(): void
+    {
+        $usuarios = $this->modelo->consultar();
+        include 'views/usuarios.php';
     }
 
-    // ── Registro de nuevo usuario ─────────────────────────────
-    public function registrar(): void {
+    // ── Crear usuario ─────────────────────────────────────
+    public function crear(): void
+    {
+        $error = null;
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $nombres  = $_POST['nombres']  ?? '';
+            $nombres  = $_POST['Nombres']   ?? '';
+            $apellido = $_POST['apellido']  ?? '';
+            $email    = $_POST['email']     ?? '';
+            $password = $_POST['password']  ?? '';
+            $confirm  = $_POST['confirm']   ?? '';
+
+            if (!$nombres || !$apellido || !$email || !$password) {
+                $error = "Todos los campos son obligatorios.";
+            } elseif ($password !== $confirm) {
+                $error = "Las contraseñas no coinciden.";
+            } elseif (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/', $password)) {
+                $error = "La contraseña debe tener mínimo 8 caracteres, mayúscula, minúscula, número y carácter especial.";
+            } elseif ($this->modelo->emailExiste($email)) {
+                $error = "Ya existe un usuario con ese correo.";
+            } else {
+                $this->modelo->insertar($nombres, $apellido, $email, $password);
+                header("Location: index.php?menu=usuarios&exito=1");
+                exit;
+            }
+        }
+
+        include 'views/usuarios_form.php';
+    }
+
+    // ── Editar usuario ────────────────────────────────────
+    public function editar(int $id): void
+    {
+        $usuario = $this->modelo->consultarPorId($id);
+        if (!$usuario) {
+            header("Location: index.php?menu=usuarios");
+            exit;
+        }
+
+        $error = null;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nombres  = $_POST['Nombres']  ?? '';
             $apellido = $_POST['apellido'] ?? '';
             $email    = $_POST['email']    ?? '';
             $password = $_POST['password'] ?? '';
+            $confirm  = $_POST['confirm']  ?? '';
 
-            if (!empty($nombres) && !empty($apellido) && filter_var($email, FILTER_VALIDATE_EMAIL) && !empty($password)) {
-                // Hashear la contraseña antes de guardar
-                $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-                $this->modelo->insertar($nombres, $apellido, $email, $passwordHash);
-            }
-
-            header("Location: index.php?menu=login");
-            exit;
-        }
-
-        // GET: mostrar formulario de registro
-        include 'views/register.php';
-    }
-
-    // ── Login ─────────────────────────────────────────────────
-    public function login(): void {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email    = $_POST['email']    ?? '';
-            $password = $_POST['password'] ?? '';
-
-            $usuario = $this->modelo->consultarPorEmail($email);
-
-            if ($usuario && password_verify($password, $usuario['password'])) {
-                // Credenciales correctas — iniciar sesión
-                session_start();
-                $_SESSION['idUsuarios']  = $usuario['idUsuarios'];
-                $_SESSION['nombres']     = $usuario['Nombres'];
-                $_SESSION['apellido']    = $usuario['apellido'];
-                $_SESSION['email']       = $usuario['email'];
-
-                header("Location: index.php?menu=productos");
-                exit;
+            if (!$nombres || !$apellido || !$email) {
+                $error = "Nombre, apellido y correo son obligatorios.";
+            } elseif ($this->modelo->emailExiste($email, $id)) {
+                $error = "Ya existe otro usuario con ese correo.";
             } else {
-                // Credenciales incorrectas
-                $error = "Correo o contraseña incorrectos.";
-                include 'views/iniciosec.php';
-                return;
+                $this->modelo->actualizar($id, $nombres, $apellido, $email);
+
+                // Solo cambia password si llenó el campo
+                if ($password) {
+                    if ($password !== $confirm) {
+                        $error = "Las contraseñas no coinciden.";
+                        include 'views/usuarios_form.php';
+                        return;
+                    } elseif (strlen($password) < 6) {
+                        $error = "La contraseña debe tener al menos 6 caracteres.";
+                        include 'views/usuarios_form.php';
+                        return;
+                    }
+                    $this->modelo->actualizarPassword($id, $password);
+                }
+
+                header("Location: index.php?menu=usuarios&exito=2");
+                exit;
             }
         }
 
-        // GET: mostrar formulario de login
-        include 'views/iniciosec.php';
+        include 'views/usuarios_form.php';
     }
 
-    // ── Logout ────────────────────────────────────────────────
-    public function logout(): void {
-        session_start();
-        session_destroy();
-        header("Location: index.php?menu=login");
-        exit;
-    }
-
-    // ── Editar usuario ────────────────────────────────────────
-    public function editar(int $id): void {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email    = $_POST['email']    ?? '';
-            $password = $_POST['password'] ?? '';
-
-            if (filter_var($email, FILTER_VALIDATE_EMAIL) && !empty($password)) {
-                $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-                $this->modelo->actualizar($id, $email, $passwordHash);
-            }
-
-            header("Location: index.php");
-            exit;
-        }
-
-        $usuario = $this->modelo->consultarPorId($id);
-        if (!$usuario) {
-            header("Location: index.php");
-            exit;
-        }
-        include 'views/editUsuario.php';
-    }
-
-    // ── Borrar usuario ────────────────────────────────────────
-    public function borrar(int $id): void {
-        if ($id) {
-            $this->modelo->eliminar($id);
-        }
-        header("Location: index.php");
+    // ── Borrar usuario ────────────────────────────────────
+    public function borrar(int $id): void
+    {
+        if ($id) $this->modelo->eliminar($id);
+        header("Location: index.php?menu=usuarios&eliminado=1");
         exit;
     }
 }
-?>

@@ -1,8 +1,28 @@
 <?php
+session_start();
 
-$menu    = $_GET['menu']    ?? 'productos';
+$menu    = $_GET['menu']    ?? 'login';
 $submenu = $_GET['submenu'] ?? 'index';
 
+// ── Páginas públicas (sin BD) ─────────────────────────────
+if ($menu == 'login') {
+    require_once 'views/iniciosec.php';
+    exit;
+}
+if ($menu == 'registro') {
+    require_once 'views/register.php';
+    exit;
+}
+if ($menu == 'olvide') {
+    require_once 'views/contrasenaolv.php';
+    exit;
+}
+if ($menu == 'recuperar') {
+    require_once 'views/recoverpass.php';
+    exit;
+}
+
+// ── Requiere BD ───────────────────────────────────────────
 require_once 'config/database.php';
 $db = new Database();
 $conexion = $db->getConnection();
@@ -10,71 +30,93 @@ $conexion = $db->getConnection();
 require_once 'functions.php';
 require_once 'controllers/ClientesController.php';
 require_once 'controllers/ProductosController.php';
+require_once 'controllers/UsuarioController.php';
+
 
 if ($menu == 'productos') {
     $productosController = new ProductosController($conexion);
     if ($submenu == 'registro') {
-        $productosController->crear();      // ← solo este cambio
-    } else if ($submenu == 'editar') {
+        $productosController->crear();
+    } elseif ($submenu == 'editar') {
         $id = (int)($_GET['id'] ?? 0);
         $productosController->editar($id);
-    } else if ($submenu == 'borrar') {
+    } elseif ($submenu == 'borrar') {
         $id = (int)($_GET['id'] ?? 0);
         $productosController->borrar($id);
     } else {
         $productosController->index();
     }
-
-} else if ($menu == 'analisisproductos') {
+} elseif ($menu == 'analisisproductos') {
     if ($submenu == 'menosvendidos')
         require_once 'views/productos_menos_vendidos.php';
     else
         require_once 'views/analisisProductos.php';
-
-} else if ($menu == 'clientes') {
+} elseif ($menu == 'clientes') {
     $clientecontroller = new ClientesController($conexion);
     if ($submenu == 'registro') {
-        require_once 'views/agregarcliente.php';
+        $clientecontroller->crear();
+    } elseif ($submenu == 'editar') {
+        $id = (int)($_GET['id'] ?? 0);
+        $clientecontroller->editar($id);
+    } elseif ($submenu == 'borrar') {
+        $id = (int)($_GET['id'] ?? 0);
+        $clientecontroller->borrar($id);
     } else {
-        $clientecontroller->index(); // ya incluye la vista internamente
+        $clientecontroller->index();
     }
+} elseif ($menu == 'inventario') {
+    require_once 'controllers/InventarioController.php';
+    $ctrl = new InventarioController($conexion);
 
-} else if ($menu == 'inventario') {
     if ($submenu == 'registro')
-        require_once 'views/registro_entrada.php';
+        $ctrl->crear();
+    elseif ($submenu == 'borrar')
+        $ctrl->borrar((int)($_GET['id'] ?? 0));
     else
-        require_once 'views/analisisProd.php';
-
-} else if ($menu == 'proveedores') {
+        $ctrl->index();
+} elseif ($menu == 'proveedores') {
     if ($submenu == 'registro')
         require_once 'views/RegistrarProveedor.php';
     else
         require_once 'views/proveedores.php';
-
-} else if ($menu == 'reportes') {
+} elseif ($menu == 'reportes') {
     if ($submenu == 'generar')
         require_once 'views/generar_nuevo_reporte.php';
     else
         require_once 'views/modulo_reportes.php';
-
-} else if ($menu == 'ventas') {
+} elseif ($menu == 'ventas') {
     require_once 'controllers/VentasController.php';
     $ventasController = new VentasController($conexion);
-
     if ($submenu == 'buscar-productos') {
         $ventasController->buscarProductos();
-
     } elseif ($submenu == 'procesar-venta') {
         $ventasController->procesarVenta();
-
     } elseif ($submenu == 'detalle-venta') {
         $ventasController->detalleVenta();
-
     } elseif ($submenu == 'registrar-devolucion') {
         $ventasController->registrarDevolucion();
-
     } else {
         $ventasController->index();
     }
+} elseif ($menu == 'usuarios') {
+    $UsuarioController = new UsuarioController($conexion);
+    if ($submenu == 'registro') {
+        $UsuarioController->crear();
+    } elseif ($submenu == 'editar') {
+        $id = (int)($_GET['id'] ?? 0);
+        $UsuarioController ->editar($id);
+    } elseif ($submenu == 'borrar') {
+        $id = (int)($_GET['id'] ?? 0);
+        $UsuarioController->borrar($id);
+    } else {
+        $UsuarioController->index();
+    }
+} elseif ($menu == 'dashboard') {
+    require_once 'views/dashboard_view.php';
+} elseif ($menu == 'respaldo') {
+    require_once 'views/respaldo.php';
+} else {
+    // Página no encontrada
+    http_response_code(404);
+    echo "<h1>404 - Página no encontrada</h1>";
 }
-?>

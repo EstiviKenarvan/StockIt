@@ -20,17 +20,21 @@ class VentasController
     }
 
     /* ── AJAX: buscar productos para el carrito ──────────── */
-    public function buscarProductos(): void
-    {
-        header('Content-Type: application/json');
-        $q = trim($_GET['q'] ?? '');
-        if (strlen($q) < 1) {
-            echo json_encode([]);
-            exit;
-        }
+   public function buscarProductos(): void
+{
+    header('Content-Type: application/json');
+    $q       = trim($_GET['q']       ?? '');
+    $barcode = trim($_GET['barcode'] ?? '');
+
+    if ($barcode !== '') {
+        echo json_encode($this->modelo->buscarProductos('', $barcode));
+    } elseif (strlen($q) >= 2) {
         echo json_encode($this->modelo->buscarProductos($q));
-        exit;
+    } else {
+        echo json_encode([]);
     }
+    exit;
+}
 
     /* ── AJAX: procesar venta completa ───────────────────── */
     public function procesarVenta(): void
@@ -38,11 +42,11 @@ class VentasController
         header('Content-Type: application/json');
         $data = json_decode(file_get_contents('php://input'), true);
 
-        $carrito      = $data['carrito']      ?? [];
-        $idMetodoPago = $data['idMetodoPago'] ?? null;
+        $carrito        = $data['carrito']      ?? [];
+        $idMetodoPago   = $data['idMetodoPago'] ?? null;
         $primerProducto = $carrito[0];
-        $idModo = $this->modelo->insertarModoVenta(null, $primerProducto['id'], $primerProducto['cantidad']);
-        $idCliente    = null;
+        $idModo         = $this->modelo->insertarModoVenta(null, $primerProducto['id'], $primerProducto['cantidad']);
+        $idCliente      = null;
 
         if (empty($carrito) || !$idMetodoPago) {
             echo json_encode(['ok' => false, 'msg' => 'Datos incompletos']);
@@ -53,11 +57,17 @@ class VentasController
 
         try {
             $idRealMetodo = $this->modelo->insertarMetodoPago($total, $idMetodoPago);
-            $idVenta = $this->modelo->insertar($idCliente, $idRealMetodo, $idModo, $total);
+            $idVenta      = $this->modelo->insertar($idCliente, $idRealMetodo, $idModo, $total);
+
             foreach ($carrito as $p) {
                 $this->modelo->insertarDetalle($idVenta, $p['id'], $p['precio'] * $p['cantidad']);
                 $this->modelo->descontarStock($p['id'], $p['cantidad']);
             }
+
+            // ── Generar alertas tras la venta ──────────────────────────
+            $_SESSION['alertas'] = $this->modelo->consultarAlertas();
+            // ──────────────────────────────────────────────────────────
+
             echo json_encode(['ok' => true, 'idVenta' => $idVenta, 'total' => $total]);
         } catch (Exception $e) {
             echo json_encode(['ok' => false, 'msg' => $e->getMessage()]);

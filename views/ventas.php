@@ -40,13 +40,18 @@
     .metodo-pago{border:2px solid #E8820C!important;background:white;color:#E8820C;margin-bottom:8px;text-align:left;padding:15px;transition:.3s;border-radius:12px!important;font-weight:bold}
     .metodo-pago.active{background-color:#FFF9C4!important;border-width:3px!important}
     #resultados-locales{max-height:220px;overflow-y:auto}
+
+    /* ── Modal cambio ── */
+    .cambio-display{font-size:2.5rem;font-weight:bold;text-align:center;padding:15px;border-radius:10px;margin-top:10px}
+    .cambio-positivo{background:#e8f5e9;color:#2e7d32}
+    .cambio-negativo{background:#ffebee;color:#c62828}
+    .cambio-cero{background:#fff3e0;color:#E8820C}
+
+    /* ── Input código de barras ── */
+    .barcode-input-group .input-group-text{background:#343a40;color:white;border:none}
   </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
-<div class="wrapper">
-  <div class="preloader flex-column justify-content-center align-items-center">
-    <img class="animation__shake" src="public/dist/img/AdminLTELogo.png" alt="Logo" height="60" width="60">
-  </div>
 
 <?php
 $paginaActiva = "ventas";
@@ -86,11 +91,22 @@ include __DIR__ . "/includes/barras.php";
                     <h3 class="card-title text-stockit font-weight-bold"><i class="fas fa-shopping-cart"></i> Carrito de Compras</h3>
                   </div>
                   <div class="card-body">
-                    <div class="position-relative">
-                      <input type="text" id="busqueda-local" class="form-control mb-1" placeholder="🔍 Buscar producto por nombre...">
+
+                    <!-- Búsqueda por nombre -->
+                    <div class="position-relative mb-2">
+                      <input type="text" id="busqueda-local" class="form-control" placeholder="🔍 Buscar producto por nombre...">
                       <div id="resultados-locales" class="list-group position-absolute w-100 shadow" style="z-index:1050;"></div>
                     </div>
-                    <table class="table table-sm mt-3">
+
+                    <!-- ── NUEVO: Búsqueda por código de barras ── -->
+                    <div class="input-group mb-3 barcode-input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fas fa-barcode"></i></span>
+                      </div>
+                      <input type="text" id="busqueda-barcode" class="form-control" placeholder="Escanear o escribir código de barras...">
+                    </div>
+
+                    <table class="table table-sm mt-1">
                       <thead><tr class="text-stockit"><th>Producto</th><th>Cant.</th><th>Subtotal</th><th></th></tr></thead>
                       <tbody id="lista-venta"></tbody>
                     </table>
@@ -113,7 +129,7 @@ include __DIR__ . "/includes/barras.php";
                       <i class="fas fa-money-bill-wave mr-2"></i> Dinero en Efectivo
                     </button>
                     <button class="btn btn-block metodo-pago shadow-sm mb-4" data-metodo="2">
-                      <i class="fas fa-credit-card mr-2"></i> Tarjeta Débito/Crédito
+                      <i class="fas fa-credit-card mr-2"></i> Tarjeta
                     </button>
                     <button id="btn-finalizar" class="btn btn-block shadow" style="background:#E8820C;color:white;font-weight:bold;padding:15px;border-radius:12px;border:none;font-size:1.1rem">
                       <i class="fas fa-check-circle mr-2"></i> PROCESAR PAGO
@@ -132,7 +148,6 @@ include __DIR__ . "/includes/barras.php";
           ═══════════════════════════════════════════════ -->
           <div class="tab-pane fade" id="tab-devolucion">
             <div class="row">
-              <!-- Motivos rápidos -->
               <div class="col-md-3">
                 <div class="card shadow-sm border-top border-warning">
                   <div class="card-header bg-white">
@@ -150,7 +165,6 @@ include __DIR__ . "/includes/barras.php";
                 </div>
               </div>
 
-              <!-- Formulario devolución -->
               <div class="col-md-9">
                 <div class="card shadow-sm">
                   <div class="card-header bg-white">
@@ -197,7 +211,6 @@ include __DIR__ . "/includes/barras.php";
                   </div>
                 </div>
 
-                <!-- Tabla devoluciones del día -->
                 <div class="card shadow-sm mt-2">
                   <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="card-title text-stockit font-weight-bold mb-0"><i class="fas fa-list"></i> Devoluciones Recientes</h5>
@@ -210,7 +223,7 @@ include __DIR__ . "/includes/barras.php";
                       </thead>
                       <tbody id="tabla-devoluciones">
                         <?php if (empty($devoluciones)): ?>
-                          <tr><td colspan="5" class="text-muted py-3">No hay devoluciones registradas.</td></tr>
+                          <tr id="dev-empty-row"><td colspan="5" class="text-muted py-3">No hay devoluciones registradas.</td></tr>
                         <?php else: ?>
                           <?php foreach ($devoluciones as $d): ?>
                             <tr>
@@ -247,7 +260,7 @@ include __DIR__ . "/includes/barras.php";
                       <tr><td colspan="5" class="text-muted py-3">Sin ventas registradas hoy.</td></tr>
                     <?php else: ?>
                       <?php foreach ($ventasHoy as $v): ?>
-                        <tr onclick="verDetalleVenta(<?= $v['idVenta'] ?>)" title="Ver detalle">
+                        <tr onclick="verDetalleVenta(<?= $v['idVenta'] ?>, '<?= date('H:i', strtotime($v['fechaHora'])) ?>', <?= $v['totalVenta'] ?>, '<?= $v['idMetodoPago'] == 1 ? 'Efectivo' : 'Tarjeta' ?>')" title="Ver detalle">
                           <td><?= date('H:i', strtotime($v['fechaHora'])) ?></td>
                           <td><?= $v['totalItems'] ?> items</td>
                           <td><?= $v['idMetodoPago'] == 1 ? '<i class="fas fa-money-bill-wave"></i> Efectivo' : '<i class="fas fa-credit-card"></i> Tarjeta' ?></td>
@@ -266,7 +279,46 @@ include __DIR__ . "/includes/barras.php";
       </div>
     </section>
   </div><!-- /.content-wrapper -->
-</div><!-- /.wrapper -->
+
+  <!-- ══════════════════════════════════════════
+       MODAL: CALCULAR CAMBIO
+  ══════════════════════════════════════════ -->
+  <div class="modal fade" id="modalCambio" tabindex="-1" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header" style="background:#343a40;color:white;border-radius:5px 5px 0 0">
+          <h5 class="modal-title font-weight-bold">
+            <i class="fas fa-money-bill-wave mr-2"></i> Calcular Cambio
+          </h5>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-3">
+            <p class="text-muted mb-1">Total a cobrar:</p>
+            <h2 class="text-stockit font-weight-bold" id="modal-total-display">$0.00</h2>
+          </div>
+          <div class="form-group">
+            <label class="font-weight-bold">Dinero recibido del cliente:</label>
+            <div class="input-group input-group-lg">
+              <div class="input-group-prepend"><span class="input-group-text">$</span></div>
+              <input type="number" id="dinero-recibido" class="form-control" placeholder="0.00" step="0.01" min="0" autofocus>
+            </div>
+          </div>
+          <div id="cambio-resultado" class="cambio-display cambio-cero" style="display:none">
+            <p class="mb-0 small text-muted">Cambio a entregar:</p>
+            <span id="cambio-valor">$0.00</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="limpiarCarrito()">
+            <i class="fas fa-times mr-1"></i> Cancelar
+          </button>
+          <button type="button" id="btn-confirmar-pago" class="btn btn-success" disabled>
+            <i class="fas fa-check mr-1"></i> Confirmar y Procesar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script src="public/plugins/jquery/jquery.min.js"></script>
 <script src="public/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -276,6 +328,7 @@ include __DIR__ . "/includes/barras.php";
 <script>
 let carrito = [];
 let pagoSeleccionado = null;
+let totalActual = 0;
 
 // ── Método de pago ────────────────────────────────────────
 $('.metodo-pago').on('click', function() {
@@ -284,7 +337,7 @@ $('.metodo-pago').on('click', function() {
     pagoSeleccionado = $(this).data('metodo');
 });
 
-// ── Buscar productos (AJAX → BD real) ────────────────────
+// ── Búsqueda por nombre ───────────────────────────────────
 let timeoutBusqueda;
 $('#busqueda-local').on('keyup', function() {
     clearTimeout(timeoutBusqueda);
@@ -295,10 +348,7 @@ $('#busqueda-local').on('keyup', function() {
     timeoutBusqueda = setTimeout(() => {
         $.get('index.php?menu=ventas&submenu=buscar-productos', { q }, data => {
             res.empty();
-            if (!data.length) {
-                res.append('<div class="list-group-item text-muted">Sin resultados</div>');
-                return;
-            }
+            if (!data.length) { res.append('<div class="list-group-item text-muted">Sin resultados</div>'); return; }
             data.forEach(p => {
                 const item = $(`<a class="list-group-item list-group-item-action d-flex justify-content-between">
                     <span>${p.nombreProducto}</span>
@@ -307,13 +357,47 @@ $('#busqueda-local').on('keyup', function() {
                 </a>`);
                 item.on('click', () => {
                     agregarAlCarrito({ id: p.idProducto, nombre: p.nombreProducto, precio: parseFloat(p.precioVenta) });
-                    res.empty();
-                    $('#busqueda-local').val('');
+                    res.empty(); $('#busqueda-local').val('');
                 });
                 res.append(item);
             });
         }, 'json');
     }, 300);
+});
+
+// ── NUEVO: Búsqueda por código de barras ──────────────────
+$('#busqueda-barcode').on('keydown', function(e) {
+    // Activa al presionar Enter (como lo hace un lector de barras)
+    if (e.key !== 'Enter') return;
+    const codigo = $(this).val().trim();
+    if (!codigo) return;
+
+    $.get('index.php?menu=ventas&submenu=buscar-productos', { barcode: codigo }, data => {
+        if (data.length === 1) {
+            // Encontrado exacto — agregar directo al carrito
+            const p = data[0];
+            agregarAlCarrito({ id: p.idProducto, nombre: p.nombreProducto, precio: parseFloat(p.precioVenta) });
+            $(this).val('');
+            $(this).addClass('is-valid');
+            setTimeout(() => $(this).removeClass('is-valid'), 800);
+        } else if (data.length === 0) {
+            $(this).addClass('is-invalid');
+            setTimeout(() => { $(this).removeClass('is-invalid').val(''); }, 1000);
+            Swal.fire({ icon:'warning', title:'No encontrado', text:`Código "${codigo}" no existe.`, timer:1500, showConfirmButton:false });
+        } else {
+            // Más de uno — mostrar resultados
+            const res = $('#resultados-locales');
+            res.empty();
+            data.forEach(p => {
+                const item = $(`<a class="list-group-item list-group-item-action">${p.nombreProducto} — $${parseFloat(p.precioVenta).toFixed(2)}</a>`);
+                item.on('click', () => {
+                    agregarAlCarrito({ id: p.idProducto, nombre: p.nombreProducto, precio: parseFloat(p.precioVenta) });
+                    res.empty(); $('#busqueda-barcode').val('');
+                });
+                res.append(item);
+            });
+        }
+    }, 'json');
 });
 
 // ── Carrito ───────────────────────────────────────────────
@@ -341,6 +425,7 @@ function actualizarVista() {
           <td><button class="btn btn-xs btn-danger" onclick="carrito.splice(${i},1);actualizarVista()">x</button></td>
         </tr>`);
     });
+    totalActual = tot;
     $('#total-venta').text(`$${tot.toFixed(2)}`);
 }
 
@@ -351,12 +436,12 @@ function cambiarCantidad(i, delta) {
 }
 
 function limpiarCarrito() {
-    carrito = []; pagoSeleccionado = null;
+    carrito = []; pagoSeleccionado = null; totalActual = 0;
     $('.metodo-pago').removeClass('active');
     actualizarVista();
 }
 
-// ── Procesar pago ─────────────────────────────────────────
+// ── NUEVO: Botón procesar → abre modal de cambio primero ──
 $('#btn-finalizar').on('click', function() {
     if (!carrito.length) {
         Swal.fire({ icon:'warning', title:'Carrito vacío', text:'Agrega productos antes de procesar.', timer:1500, showConfirmButton:false });
@@ -367,6 +452,57 @@ $('#btn-finalizar').on('click', function() {
         return;
     }
 
+    // Si es tarjeta, no necesita calcular cambio — procesar directo
+    if (pagoSeleccionado == 2) {
+        procesarVenta(0);
+        return;
+    }
+
+    // Efectivo: abrir modal de cambio
+    $('#modal-total-display').text(`$${totalActual.toFixed(2)}`);
+    $('#dinero-recibido').val('');
+    $('#cambio-resultado').hide();
+    $('#btn-confirmar-pago').prop('disabled', true);
+    $('#modalCambio').modal('show');
+    setTimeout(() => $('#dinero-recibido').focus(), 400);
+});
+
+// ── NUEVO: Calcular cambio en tiempo real ─────────────────
+$('#dinero-recibido').on('input', function() {
+    const recibido = parseFloat($(this).val()) || 0;
+    const cambio   = recibido - totalActual;
+    const res      = $('#cambio-resultado');
+    const btn      = $('#btn-confirmar-pago');
+
+    if ($(this).val() === '') { res.hide(); btn.prop('disabled', true); return; }
+
+    res.show();
+    $('#cambio-valor').text(`$${Math.abs(cambio).toFixed(2)}`);
+
+    if (cambio >= 0) {
+        res.removeClass('cambio-negativo cambio-cero').addClass('cambio-positivo');
+        btn.prop('disabled', false);
+        if (cambio === 0) {
+            res.removeClass('cambio-positivo').addClass('cambio-cero');
+            $('#cambio-valor').text('Exacto 👌');
+        }
+    } else {
+        res.removeClass('cambio-positivo cambio-cero').addClass('cambio-negativo');
+        res.find('.mb-0').text('Sobra:');
+        btn.prop('disabled', true);
+    }
+});
+
+// ── NUEVO: Confirmar pago desde el modal ──────────────────
+$('#btn-confirmar-pago').on('click', function() {
+    const recibido = parseFloat($('#dinero-recibido').val()) || 0;
+    const cambio   = recibido - totalActual;
+    $('#modalCambio').modal('hide');
+    procesarVenta(cambio);
+});
+
+// ── Procesar venta (AJAX) ─────────────────────────────────
+function procesarVenta(cambio) {
     $.ajax({
         url: 'index.php?menu=ventas&submenu=procesar-venta',
         method: 'POST',
@@ -374,34 +510,38 @@ $('#btn-finalizar').on('click', function() {
         data: JSON.stringify({ carrito, idMetodoPago: pagoSeleccionado }),
         success(res) {
             if (res.ok) {
-                Swal.fire({ icon:'success', title:'¡Venta Exitosa!', text:`Venta #${res.idVenta} — $${parseFloat(res.total).toFixed(2)}`, confirmButtonColor:'#E8820C' })
-                    .then(() => location.reload());
+                let html = `<p><b>Total:</b> $${parseFloat(res.total).toFixed(2)}</p>`;
+                if (pagoSeleccionado == 1) {
+                    html += `<p><b>Cambio entregado:</b> <span style="color:#2e7d32;font-size:1.4rem;font-weight:bold">$${parseFloat(cambio).toFixed(2)}</span></p>`;
+                }
+                Swal.fire({
+                    icon: 'success',
+                    title: `¡Venta #${res.idVenta} Exitosa!`,
+                    html,
+                    confirmButtonColor: '#E8820C',
+                    confirmButtonText: 'Aceptar'
+                }).then(() => location.reload());
             } else {
                 Swal.fire({ icon:'error', title:'Error', text: res.msg });
             }
         },
         error() { Swal.fire({ icon:'error', title:'Error de conexión' }); }
     });
-});
+}
 
-// ── Devoluciones: búsqueda de producto ───────────────────
+// ── Devoluciones: búsqueda ────────────────────────────────
 let timeoutDev;
 $('#dev-prod-nombre').on('keyup', function() {
     clearTimeout(timeoutDev);
     const q = $(this).val().trim();
     const res = $('#dev-resultados');
     if (q.length < 2) { res.empty(); return; }
-
     timeoutDev = setTimeout(() => {
         $.get('index.php?menu=ventas&submenu=buscar-productos', { q }, data => {
             res.empty();
             data.forEach(p => {
                 const item = $(`<a class="list-group-item list-group-item-action">${p.nombreProducto}</a>`);
-                item.on('click', () => {
-                    $('#dev-prod-nombre').val(p.nombreProducto);
-                    $('#dev-prod-id').val(p.idProducto);
-                    res.empty();
-                });
+                item.on('click', () => { $('#dev-prod-nombre').val(p.nombreProducto); $('#dev-prod-id').val(p.idProducto); res.empty(); });
                 res.append(item);
             });
         }, 'json');
@@ -434,22 +574,17 @@ function registrarDevolucion() {
         data: JSON.stringify({ idProducto, motivo, descripcion, cantidad, idVenta }),
         success(res) {
             if (res.ok) {
-                // Agregar fila en la tabla sin recargar
                 const hora = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
                 const emptyRow = document.getElementById('dev-empty-row');
                 if (emptyRow) emptyRow.remove();
-
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${hora}</td><td>${nombre}</td><td>${cantidad}</td>
                     <td><span class="badge badge-warning">${motivo}</span></td>
                     <td><span class="badge badge-success">Procesado</span></td>`;
                 document.getElementById('tabla-devoluciones').prepend(tr);
-
-                // Limpiar form
                 $('#dev-prod-nombre').val(''); $('#dev-prod-id').val('');
                 $('#dev-cantidad').val(1); $('#dev-descripcion').val(''); $('#dev-idventa').val('');
                 document.querySelectorAll('.motivo-card').forEach(c => c.classList.remove('selected'));
-
                 Swal.fire({ icon:'success', title:'Devolución Registrada', showConfirmButton:false, timer:1000 });
             } else {
                 Swal.fire({ icon:'error', title:'Error', text: res.msg });
@@ -459,36 +594,47 @@ function registrarDevolucion() {
     });
 }
 
-// ── Detalle de venta en corte ─────────────────────────────
-function verDetalleVenta(idVenta) {
-    $.get('index.php?menu=ventas&submenu=buscar-productos', { detalle: idVenta })
-     .always(() => {
-        // Usamos ajax directo al endpoint de detalle
-        Swal.fire({
-            title: `<span style="color:#E8820C;font-style:italic">Venta #${idVenta}</span>`,
-            html: `<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x text-stockit"></i></div>`,
-            showConfirmButton: false,
-            didOpen() {
-                $.get(`index.php?menu=ventas&submenu=detalle-venta&id=${idVenta}`, data => {
-                    let filas = data.map(p =>
-                        `<tr><td style="text-align:left">${p.nombreProducto}</td><td>$${parseFloat(p.totalVentaP).toFixed(2)}</td></tr>`
-                    ).join('');
-                    Swal.update({
-                        html: `<table style="width:100%;font-size:14px">
-                            <thead><tr style="color:#E8820C">
-                              <th style="text-align:left;padding:6px;border-bottom:2px solid #E8820C">Producto</th>
-                              <th style="padding:6px;border-bottom:2px solid #E8820C">Subtotal</th>
-                            </tr></thead>
-                            <tbody>${filas || '<tr><td colspan="2" style="color:#999">Sin detalle</td></tr>'}</tbody>
-                          </table>`,
-                        showConfirmButton: true,
-                        confirmButtonColor: '#E8820C',
-                        confirmButtonText: 'Cerrar'
-                    });
-                }, 'json');
-            }
-        });
-     });
+// ── NUEVO: Detalle de venta en corte con total destacado ──
+function verDetalleVenta(idVenta, hora, total, metodo) {
+    Swal.fire({
+        title: `<span style="color:#E8820C;font-style:italic">Venta #${idVenta}</span>`,
+        html: `<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x" style="color:#E8820C"></i></div>`,
+        showConfirmButton: false,
+        didOpen() {
+            $.get(`index.php?menu=ventas&submenu=detalle-venta&id=${idVenta}`, data => {
+                let filas = (data || []).map(p =>
+                    `<tr>
+                      <td style="text-align:left;padding:8px">${p.nombreProducto}</td>
+                      <td style="padding:8px">$${parseFloat(p.totalVentaP).toFixed(2)}</td>
+                    </tr>`
+                ).join('') || '<tr><td colspan="2" style="color:#999;text-align:center">Sin detalle disponible</td></tr>';
+
+                Swal.update({
+                    html: `
+                      <div style="text-align:left;margin-bottom:10px;font-size:14px">
+                        <b>Hora:</b> ${hora} &nbsp;|&nbsp; <b>Método:</b> ${metodo}
+                      </div>
+                      <table style="width:100%;font-size:14px;border-collapse:collapse">
+                        <thead>
+                          <tr style="background:#FFF3E0;color:#E8820C">
+                            <th style="padding:8px;text-align:left;border-bottom:2px solid #E8820C">Producto</th>
+                            <th style="padding:8px;border-bottom:2px solid #E8820C">Subtotal</th>
+                          </tr>
+                        </thead>
+                        <tbody>${filas}</tbody>
+                      </table>
+                      <div style="background:#FFF3E0;border-radius:8px;padding:12px;margin-top:15px;text-align:center">
+                        <p style="margin:0;color:#555;font-size:13px">TOTAL DE LA VENTA</p>
+                        <p style="margin:0;font-size:2rem;font-weight:bold;color:#E8820C">$${parseFloat(total).toFixed(2)}</p>
+                      </div>`,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#E8820C',
+                    confirmButtonText: 'Cerrar',
+                    width: '500px'
+                });
+            }, 'json');
+        }
+    });
 }
 </script>
 </body>
