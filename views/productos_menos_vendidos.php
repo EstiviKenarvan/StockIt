@@ -122,25 +122,6 @@ include __DIR__ . "/includes/barras.php";
                         echo crearFilaColapsable(6, "Revisión de categorías", true);
                         ?>
                     </div>
-
-                    <!-- PANEL GRÁFICO -->
-                    <div class="col-md-4">
-                        <div class="card" style="background-color:#FFF0F0; border:1px solid #FADBD8; border-radius:15px;">
-                            <div class="card-header border-0">
-                                <h5 style="color:#C0392B; font-weight:bold; margin-top:10px;">Baja rotación</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="graficoBajaRotacion" style="min-height:250px; height:250px; max-height:250px; max-width:100%;"></canvas>
-                                <div class="mt-4">
-                                    <?php
-                                    echo crearLeyenda("#C0392B", "Chile seco (40%)");
-                                    echo crearLeyenda("#E74C3C", "Enlatados (25%)");
-                                    echo crearLeyenda("#FADBD8", "Otros (35%)");
-                                    ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>

@@ -101,25 +101,6 @@ include __DIR__ . "/includes/barras.php";
                         echo crearFilaColapsable(6, "Revisión de categorías");
                         ?>
                     </div>
-
-                    <!-- PANEL DERECHO -->
-                    <div class="col-md-4">
-                        <div class="panel-derecho card elevation-1">
-                            <div class="panel-derecho-header">
-                                <h5 class="titulo-panel">Distribución por categoría</h5>
-                            </div>
-                            <div class="panel-derecho-body">
-                                <canvas id="graficoCategorias" style="min-height:220px; height:220px; max-height:220px; max-width:100%; margin-bottom:20px;"></canvas>
-                                <?php
-                                echo crearLeyenda("#E8820C", "Pastelitos (32%)");
-                                echo crearLeyenda("#007BFF", "Bebidas (24%)");
-                                echo crearLeyenda("#28A745", "Lácteos (17%)");
-                                echo crearLeyenda("#6F42C1", "Botanas (17%)");
-                                echo crearLeyenda("#B38600", "Galletas (10%)");
-                                ?>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>

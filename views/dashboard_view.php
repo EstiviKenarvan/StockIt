@@ -1,715 +1,525 @@
 <?php
-require_once "../config/conexion.php";
+$totalProductos  = $conexion->query("SELECT COUNT(*) FROM productos")->fetchColumn() ?: 0;
+$totalStock      = $conexion->query("SELECT SUM(stockEnGeneral) FROM productos")->fetchColumn() ?: 0;
+$agotados        = $conexion->query("SELECT COUNT(*) FROM productos WHERE estado = 'Agotado'")->fetchColumn() ?: 0;
+$pocoStock       = $conexion->query("SELECT COUNT(*) FROM productos WHERE estado = 'Poco Stock'")->fetchColumn() ?: 0;
+$disponibles     = $conexion->query("SELECT COUNT(*) FROM productos WHERE estado = 'Disponible'")->fetchColumn() ?: 0;
+$porCaducar      = $conexion->query("SELECT COUNT(*) FROM productos WHERE fechaCaducidad IS NOT NULL AND fechaCaducidad <= DATE_ADD(NOW(), INTERVAL 30 DAY)")->fetchColumn() ?: 0;
+$ventasHoy       = $conexion->query("SELECT COALESCE(SUM(totalVenta),0) FROM ventas WHERE DATE(fechaHora) = CURDATE()")->fetchColumn() ?: 0;
+$numVentasHoy    = $conexion->query("SELECT COUNT(*) FROM ventas WHERE DATE(fechaHora) = CURDATE()")->fetchColumn() ?: 0;
+$totalClientes   = $conexion->query("SELECT COUNT(*) FROM clientes")->fetchColumn() ?: 0;
 
-$totalStock = $conexion->query("SELECT SUM(stock_actual) FROM productos")->fetchColumn();
-$alertas = $conexion->query("SELECT COUNT(*) FROM productos WHERE stock_actual <= stock_minimo")->fetchColumn();
-// Función para crear una fila colapsable con COLOR VARIABLE
-function crearFilaColapsable($id, $titulo, $esRojo = false)
-{
-    $claseCard = $esRojo ? 'card-fila-roja' : 'card-fila';
-    $claseIcono = $esRojo ? 'style="background:#F5C6CB; color:#D92323;"' : '';
+$stockCategorias = $conexion->query("
+    SELECT c.nombreCategoria, SUM(p.stockEnGeneral) as total
+    FROM productos p LEFT JOIN categorias c ON p.idCategoria = c.idCategoria
+    GROUP BY c.idCategoria, c.nombreCategoria ORDER BY total DESC LIMIT 5
+")->fetchAll(PDO::FETCH_ASSOC);
 
-    return "
-    <div class='card {$claseCard}'>
-        <div class='card-header' data-toggle='collapse' data-target='#collapse-{$id}'>
-            <h5 class='mb-0' style='color: #444;'>{$titulo}</h5>
-            <i class='fas fa-caret-down icono-collapse' {$claseIcono}></i>
-        </div>
-        <div id='collapse-{$id}' class='collapse'>
-            <div class='card-body'>
-                Detalles de baja rotación para {$titulo}...
-            </div>
-        </div>
-    </div>
-    ";
-}
+$gastosMeses = $conexion->query("
+    SELECT DATE_FORMAT(fechaEntrada,'%b') as mes, COALESCE(SUM(costo*cantidad),0) as total
+    FROM movimientos_inventario WHERE fechaEntrada >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+    GROUP BY MONTH(fechaEntrada), mes ORDER BY MONTH(fechaEntrada) ASC
+")->fetchAll(PDO::FETCH_ASSOC);
 
-function crearLeyenda($color, $texto)
-{
-    return "
-    <div class='leyenda-item'>
-        <div class='color-box' style='background-color: {$color};'></div>
-        <span>{$texto}</span>
-    </div>
-    ";
-}
+$ventasMeses = $conexion->query("
+    SELECT DATE_FORMAT(fechaHora,'%b') as mes, COALESCE(SUM(totalVenta),0) as total
+    FROM ventas WHERE fechaHora >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+    GROUP BY MONTH(fechaHora), mes ORDER BY MONTH(fechaHora) ASC
+")->fetchAll(PDO::FETCH_ASSOC);
+
+$catLabels   = array_column($stockCategorias, 'nombreCategoria') ?: ['Sin datos'];
+$catTotales  = array_column($stockCategorias, 'total') ?: [0];
+$mesesLabels = array_column($ventasMeses, 'mes') ?: ['Sin datos'];
+$ventasData  = array_column($ventasMeses, 'total') ?: [0];
+$gastosData  = array_column($gastosMeses, 'total') ?: [0];
+
+$totalProd = max($totalProductos, 1);
+$pctDisp   = round($disponibles / $totalProd * 100);
+$pctCaduc  = round($porCaducar  / $totalProd * 100);
+$pctPoco   = round($pocoStock   / $totalProd * 100);
+$pctAgot   = round($agotados    / $totalProd * 100);
+
+$coloresCat = ['#E8820C','#2E86C1','#28B463','#6F42C1','#AF601A','#DC3545'];
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AdminLTE 3 | Dashboard</title>
-
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="public/plugins/fontawesome-free/css/all.min.css">
-    <!-- Ionicons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- Tempusdominus Bootstrap 4 -->
-    <link rel="stylesheet" href="public/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-    <!-- iCheck -->
-    <link rel="stylesheet" href="public/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-    <!-- JQVMap -->
-    <link rel="stylesheet" href="public/plugins/jqvmap/jqvmap.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="public/dist/css/adminlte.min.css">
-    <!-- overlayScrollbars -->
-    <link rel="stylesheet" href="public/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-    <!-- Daterange picker -->
-    <link rel="stylesheet" href="public/plugins/daterangepicker/daterangepicker.css">
-    <!-- summernote -->
-    <link rel="stylesheet" href="public/plugins/summernote/summernote-bs4.min.css">
-
-    <style>
-        /* 1. MENÚ Y BARRA SUPERIOR (NARANJA STOCKIT) */
-        .main-header.navbar {
-            background-color: #E8820C !important;
-        }
-
-        .main-header .nav-link,
-        .main-header .nav-link i {
-            color: #ffffff !important;
-        }
-
-        .main-sidebar,
-        .brand-link {
-            background-color: #E8820C !important;
-        }
-
-        .nav-sidebar .nav-link,
-        .brand-link .brand-text,
-        .nav-sidebar .nav-link i {
-            color: #ffffff !important;
-        }
-
-        /* 2. FONDO GENERAL */
-        .content-wrapper {
-            background-color: #FFF5E5 !important;
-        }
-
-        /* 3. FILAS ROSADAS (BAJA ROTACIÓN) */
-        .card-fila-roja {
-            background: #FCE4E4 !important;
-            border-radius: 15px !important;
-            border: 1px solid #F5C6CB !important;
-            margin-bottom: 15px !important;
-            border-left: 8px solid #D92323 !important;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-        }
-
-        .icono-collapse {
-            float: right;
-            padding: 5px;
-            border-radius: 50%;
-        }
-
-        /* 4. PANEL DERECHO ROJO */
-        .panel-derecho {
-            background-color: white !important;
-            border-radius: 15px !important;
-            border: 1px solid #F5C6CB !important;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important;
-        }
-
-        .panel-derecho-header {
-            background-color: #FCE4E4 !important;
-            /* Header Rosado */
-            padding: 15px 20px !important;
-            border-bottom: 1px solid #F5C6CB !important;
-        }
-
-        .titulo-panel-rojo {
-            color: #D92323 !important;
-            font-weight: bold !important;
-            margin: 0 !important;
-        }
-
-        .grafico-circular-rosado {
-            width: 170px;
-            height: 170px;
-            border-radius: 50%;
-            background-color: #FCE4E4;
-            border: 2px solid #F5C6CB;
-            margin: 20px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* 5. BOTONES Y BUSCADOR */
-        .btn-rojo-activo {
-            background-color: #D92323 !important;
-            color: white !important;
-            border-radius: 10px;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-
-        .btn-outline-naranja {
-            border: 1px solid #E8820C;
-            color: #E8820C;
-            border-radius: 10px;
-        }
-
-        .input-busqueda {
-            border-radius: 20px;
-            padding-left: 35px;
-        }
-
-        .leyenda-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .color-box {
-            width: 15px;
-            height: 15px;
-            border-radius: 3px;
-            margin-right: 10px;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StockIt | Dashboard</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <link rel="stylesheet" href="public/plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <link rel="stylesheet" href="public/dist/css/adminlte.min.css">
+  <style>
+    .main-header.navbar,.main-header.navbar-white,.main-header.navbar-light,nav.main-header{background-color:#E8820C!important;border-bottom:none!important}
+    .main-header .nav-link,.main-header .nav-link i,.navbar-light .navbar-nav .nav-link{color:#fff!important}
+    .main-sidebar,.main-sidebar:before,.brand-link,.sidebar-dark-primary{background-color:#E8820C!important}
+    .nav-sidebar .nav-link{background:transparent!important;color:#fff!important}
+    .nav-sidebar .nav-link:hover{background-color:rgba(255,255,255,.15)!important}
+    .nav-sidebar .nav-link.active{background-color:rgba(0,0,0,.15)!important;color:#fff!important}
+    .nav-sidebar .nav-link p,.nav-sidebar .nav-link i{color:#fff!important}
+    .brand-link .brand-text,.sidebar .user-panel .info a{color:#fff!important}
+    .form-control-sidebar,.btn-sidebar{background-color:#fff!important;border:1px solid #ddd!important;color:#333!important}
+    .user-panel,.form-inline{border-bottom:1px solid rgba(255,255,255,.2)!important}
+    .content-wrapper{background-color:#FFF5E5!important}
+    .kpi-card{border-radius:15px;border:none;box-shadow:0 4px 15px rgba(0,0,0,.08);transition:transform .2s}
+    .kpi-card:hover{transform:translateY(-3px)}
+    .kpi-icon{width:55px;height:55px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+    .kpi-number{font-size:2rem;font-weight:800;line-height:1}
+    .kpi-label{font-size:.8rem;color:#999;margin-top:4px}
+    .chart-card{border-radius:15px;border:none;box-shadow:0 4px 15px rgba(0,0,0,.06)}
+    .chart-title{font-weight:700;font-size:1rem;color:#333}
+    .chart-subtitle{font-size:.78rem;color:#aaa}
+    .leyenda-item{display:flex;align-items:center;margin-bottom:6px;font-size:.83rem}
+    .color-box{width:12px;height:12px;border-radius:3px;margin-right:8px;flex-shrink:0}
+    .estado-row{margin-bottom:12px}
+    .estado-row .label{font-size:.83rem;color:#555}
+    .estado-row .valor{font-size:.83rem;font-weight:700}
+    .btn-periodo{border:2px solid #E8820C;color:#E8820C;background:white;border-radius:20px;padding:4px 16px;font-size:.8rem;font-weight:600;transition:.2s;cursor:pointer}
+    .btn-periodo.active,.btn-periodo:hover{background:#E8820C;color:white}
+    .card-tendencia{border-radius:15px;border:none;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);box-shadow:0 8px 25px rgba(0,0,0,.25)}
+    .card-tendencia .chart-title{color:#fff}
+    .card-tendencia .chart-subtitle{color:rgba(255,255,255,.5)}
+    .badge-tend{background:rgba(255,255,255,.1);color:#fff;border-radius:20px;padding:4px 12px;font-size:.75rem}
+    .chart-loading{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#E8820C;font-size:1.5rem}
+    .chart-wrap{position:relative}
+  </style>
 </head>
-
 <body class="hold-transition sidebar-mini layout-fixed">
-    <div class="wrapper">
+<div class="wrapper">
 
-        <!-- Navbar -->
-        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <!-- Left navbar links -->
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
-                </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li>
-            </ul>
+  <?php $paginaActiva = "dashboard"; include __DIR__ . "/includes/barras.php"; ?>
 
-            <!-- Right navbar links -->
-            <ul class="navbar-nav ml-auto">
-                <!-- Navbar Search -->
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                        <i class="fas fa-search"></i>
-                    </a>
-                    <div class="navbar-search-block">
-                        <form class="form-inline">
-                            <div class="input-group input-group-sm">
-                                <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-                                <div class="input-group-append">
-                                    <button class="btn btn-navbar" type="submit">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                    <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </li>
-
-                <!-- Messages Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-comments"></i>
-                        <span class="badge badge-danger navbar-badge">3</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="public/dist/img/user1-128x128.jpg" alt="User Avatar" class="img-size-50 mr-3 img-circle">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        Brad Diesel
-                                        <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">Call me whenever you can...</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="public/dist/img/user8-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        John Pierce
-                                        <span class="float-right text-sm text-muted"><i class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">I got your message bro</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="public/dist/img/user3-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        Nora Silvester
-                                        <span class="float-right text-sm text-warning"><i class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">The subject goes here</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
-                    </div>
-                </li>
-                <!-- Notifications Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-bell"></i>
-                        <span class="badge badge-warning navbar-badge">15</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <span class="dropdown-item dropdown-header">15 Notifications</span>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-envelope mr-2"></i> 4 new messages
-                            <span class="float-right text-muted text-sm">3 mins</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-users mr-2"></i> 8 friend requests
-                            <span class="float-right text-muted text-sm">12 hours</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-file mr-2"></i> 3 new reports
-                            <span class="float-right text-muted text-sm">2 days</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                        <i class="fas fa-expand-arrows-alt"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
-                        <i class="fas fa-th-large"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <!-- /.navbar -->
-
-        <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4">
-            <!-- Brand Logo -->
-            <a href="index3.html" class="brand-link">
-                <img src="public/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-                <span class="brand-text font-weight-light">Stock It</span>
-            </a>
-
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <!-- Sidebar user panel (optional) -->
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="public/dist/img/persona 1.jpg" class="img-circle elevation-2" alt="User Image">
-                    </div>
-                    <div class="info">
-                        <a href="#" class="d-block">Miyamoto Musashi</a>
-                    </div>
-                </div>
-
-                <!-- SidebarSearch Form -->
-                <div class="form-inline">
-                    <div class="input-group" data-widget="sidebar-search">
-                        <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-                        <div class="input-group-append">
-                            <button class="btn btn-sidebar">
-                                <i class="fas fa-search fa-fw"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar Menu -->
-                <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-
-                        <li class="nav-item">
-                            <a href="pages/widgets.html" class="nav-link">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Productos
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="pages/widgets.html" class="nav-link">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Analisis de Productos
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="pages/widgets.html" class="nav-link">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Clientes
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="pages/widgets.html" class="nav-link">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Inventario
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="pages/widgets.html" class="nav-link">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Proveedores
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="pages/widgets.html" class="nav-link">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Alertas
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="pages/widgets.html" class="nav-link">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Reportes
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="pages/widgets.html" class="nav-link">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Tipo de Ventas
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <!-- /.sidebar-menu -->
+  <div class="content-wrapper">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="m-0 d-inline" style="font-weight:800;color:#333">Dashboard</h1>
+            <span class="ml-2 text-muted" style="font-size:.9rem">Resumen general del negocio</span>
+          </div>
+          <div class="d-flex align-items-center">
+            <span class="text-muted mr-3" style="font-size:.85rem">Ver por:</span>
+            <div id="filtros-periodo">
+              <button class="btn-periodo mr-1" data-periodo="dia">Hoy</button>
+              <button class="btn-periodo active mr-1" data-periodo="semana">Semana</button>
+              <button class="btn-periodo" data-periodo="mes">Mes</button>
             </div>
-            <!-- /.sidebar -->
-        </aside>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
+    <section class="content">
+      <div class="container-fluid">
 
-            <div class="content-header">
-                <div class="container-fluid">
-                    <div class="row align-items-center mb-4">
-                        <div class="col-md-6">
-                            <h1 class="m-0">Análisis de <span class="titulo-naranja">Productos</span></h1>
-                            <p class="text-muted">Productos con menor movimiento</p>
-                        </div>
-                        <div class="col-md-6 text-right d-flex align-items-center justify-content-end">
-                            <div class="position-relative d-inline-block mr-3" style="width: 200px;">
-                                <i class="fas fa-search" style="position: absolute; left: 10px; top: 10px; color: #ccc;"></i>
-                                <input type="text" class="form-control" style="padding-left: 30px; border-radius: 8px;" placeholder="Buscar...">
-                            </div>
-
-                            <button class="btn btn-outline-dark mr-2" style="border-radius: 8px; font-weight: 500; white-space: nowrap;">
-                                + Registrar Salida
-                            </button>
-                            <button class="btn" style="background-color: #F39C12; color: white; border-radius: 8px; font-weight: 500; white-space: nowrap;">
-                                + Registrar Entrada
-                            </button>
-                        </div>
-                    </div>
+        <!-- KPIs -->
+        <div class="row mb-4">
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card kpi-card p-3">
+              <div class="d-flex align-items-center">
+                <div class="kpi-icon mr-3" style="background:#FFF3E0"><i class="fas fa-boxes" style="color:#E8820C"></i></div>
+                <div>
+                  <div class="kpi-number" style="color:#E8820C"><?= number_format($totalProductos) ?></div>
+                  <div class="kpi-label">Productos registrados</div>
                 </div>
+              </div>
+              <div class="mt-2 pt-2" style="border-top:1px solid #f5f5f5">
+                <small class="text-muted">Stock total: <b><?= number_format($totalStock) ?> uds.</b></small>
+              </div>
             </div>
-
-            <section class="content">
-                <div class="container-fluid">
-                    <div class="row">
-                        <section class="content">
-                            <div class="container-fluid">
-
-                                <div class="row mb-4">
-                                    <div class="col-lg-3 col-6">
-                                        <div class="small-box bg-white elevation-1" style="border-top: 5px solid #28a745; border-radius: 10px;">
-                                            <div class="inner">
-                                                <p class="text-muted mb-0">Entradas hoy</p>
-                                                <h3 class="text-success" style="font-weight: bold;">124</h3>
-                                                <div style="background-color: #e8f5e9; color: #28a745; padding: 2px 10px; border-radius: 5px; display: inline-block; font-size: 0.8rem;">Piezas</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-lg-3 col-6">
-                                        <div class="small-box bg-white elevation-1" style="border-top: 5px solid #dc3545; border-radius: 10px;">
-                                            <div class="inner">
-                                                <p class="text-muted mb-0">Salidas hoy</p>
-                                                <h3 class="text-danger" style="font-weight: bold;">178</h3>
-                                                <div style="background-color: #ffebee; color: #dc3545; padding: 2px 10px; border-radius: 5px; display: inline-block; font-size: 0.8rem;">Piezas</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-lg-3 col-6">
-                                        <div class="small-box bg-white elevation-1" style="border-top: 5px solid #fd7e14; border-radius: 10px;">
-                                            <div class="inner">
-                                                <p class="text-muted mb-0">Stock total</p>
-                                                <h3 style="color: #fd7e14; font-weight: bold;">1300</h3>
-                                                <div style="background-color: #fff3e0; color: #fd7e14; padding: 2px 10px; border-radius: 5px; display: inline-block; font-size: 0.8rem;">Productos disponibles</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-lg-3 col-6">
-                                        <div class="small-box bg-white elevation-1" style="border-top: 5px solid #ffc107; border-radius: 10px;">
-                                            <div class="inner">
-                                                <p class="text-muted mb-0">Stock bajo</p>
-                                                <h3 class="text-warning" style="font-weight: bold;">5</h3>
-                                                <div style="background-color: #fffde7; color: #fbc02d; padding: 2px 10px; border-radius: 5px; display: inline-block; font-size: 0.8rem;">Productos</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">
-
-
-                                        <div class="card card-outline" style="border-radius: 15px; background-color: #FFF9F2; border: 1px solid #FAD7A0;">
-                                            <div class="card-header border-0">
-                                                <h5 style="color: #A04000; font-weight: bold; margin-top: 10px;">Movimientos Semanales</h5>
-                                                <div class="card-tools">
-                                                    <span class="badge" style="color: #888;"><i class="fas fa-circle" style="color: #F39C12;"></i> Entradas</span>
-                                                    <span class="badge" style="color: #888;"><i class="fas fa-circle" style="color: #D35400;"></i> Salidas</span>
-                                                </div>
-                                            </div>
-                                            <div class="card-body">
-                                                <div style="border: 1px solid #FAD7A0; border-radius: 10px; padding: 15px; background-color: #FFF9F2;">
-                                                    <canvas id="barChartMovimientos" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <div class="card h-100" style="border-radius: 15px; border: 1px solid #FAD7A0; background-color: #FFF9F2;">
-                                            <div class="card-header border-0">
-                                                <h5 style="color: #A04000; font-weight: bold; margin-top: 10px;">Stock por Categoría</h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <div style="border: 1px solid #FAD7A0; border-radius: 10px; padding: 15px; background-color: white; position: relative; height: 220px;">
-                                                    <canvas id="graficoStockCategoria"></canvas>
-                                                </div>
-
-                                                <div class="mt-4 px-2">
-                                                    <div class="d-flex justify-content-between mb-1">
-                                                        <span><i class="fas fa-circle" style="color: #E67E22;"></i> Pastelitos</span>
-                                                        <span class="font-weight-bold">40%</span>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between mb-1">
-                                                        <span><i class="fas fa-circle" style="color: #2E86C1;"></i> Rollos</span>
-                                                        <span class="font-weight-bold">25%</span>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between mb-1">
-                                                        <span><i class="fas fa-circle" style="color: #28B463;"></i> Galletas</span>
-                                                        <span class="font-weight-bold">20%</span>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between">
-                                                        <span><i class="fas fa-circle" style="color: #AF601A;"></i> Otros</span>
-                                                        <span class="font-weight-bold">15%</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div class="row mt-4">
-                                    <div class="col-md-12">
-                                        <div class="card" style="border-radius: 15px; border: 1px solid #FAD7A0; background-color: white;">
-                                            <div class="card-header border-0" style="background-color: #FFF9F2;">
-                                                <h5 style="color: #A04000; font-weight: bold; margin-bottom: 0;">Lista de movimientos</h5>
-                                            </div>
-                                            <div class="card-body table-responsive p-0">
-                                                <table class="table table-hover text-nowrap">
-                                                    <thead style="background-color: #FDEBD0; color: #A04000;">
-                                                        <tr>
-                                                            <th class="pl-4">Fecha</th>
-                                                            <th>Producto</th>
-                                                            <th>Tipo</th>
-                                                            <th>Cantidad</th>
-                                                            <th>Responsable</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td class="pl-4">01/03/2026 09:12</td>
-                                                            <td>Gansito Marinela</td>
-                                                            <td><span style="color: #2E86C1;">▲ Entrada</span></td>
-                                                            <td><strong>+100 pzs</strong></td>
-                                                            <td>Ana López</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="pl-4">01/03/2026 11:30</td>
-                                                            <td>Chocorroles</td>
-                                                            <td><span style="color: #A93226;">▼ Salida</span></td>
-                                                            <td><strong>-45 pzs</strong></td>
-                                                            <td>Carlos Ruiz</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-                    <!-- /.content-wrapper -->
-
-                    <footer class="main-footer">
-                        <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong>
-                        All rights reserved.
-                        <div class="float-right d-none d-sm-inline-block">
-                            <b>Version</b> 3.1.0
-                        </div>
-                    </footer>
-
-                    <!-- Control Sidebar -->
-                    <aside class="control-sidebar control-sidebar-dark">
-                        <!-- Control sidebar content goes here -->
-                    </aside>
-                    <!-- /.control-sidebar -->
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card kpi-card p-3">
+              <div class="d-flex align-items-center">
+                <div class="kpi-icon mr-3" style="background:#E8F5E9"><i class="fas fa-dollar-sign" style="color:#28a745"></i></div>
+                <div>
+                  <div class="kpi-number text-success">$<?= number_format($ventasHoy, 2) ?></div>
+                  <div class="kpi-label">Vendido hoy</div>
                 </div>
-                <!-- ./wrapper -->
+              </div>
+              <div class="mt-2 pt-2" style="border-top:1px solid #f5f5f5">
+                <small class="text-muted"><?= $numVentasHoy ?> transacciones</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card kpi-card p-3">
+              <div class="d-flex align-items-center">
+                <div class="kpi-icon mr-3" style="background:#FFF8E1"><i class="fas fa-exclamation-triangle" style="color:#ffc107"></i></div>
+                <div>
+                  <div class="kpi-number text-warning"><?= $agotados + $pocoStock ?></div>
+                  <div class="kpi-label">Productos con alerta</div>
+                </div>
+              </div>
+              <div class="mt-2 pt-2" style="border-top:1px solid #f5f5f5">
+                <small class="text-muted"><?= $agotados ?> agotados · <?= $pocoStock ?> poco stock</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card kpi-card p-3">
+              <div class="d-flex align-items-center">
+                <div class="kpi-icon mr-3" style="background:#E3F2FD"><i class="fas fa-users" style="color:#2196f3"></i></div>
+                <div>
+                  <div class="kpi-number text-primary"><?= number_format($totalClientes) ?></div>
+                  <div class="kpi-label">Clientes registrados</div>
+                </div>
+              </div>
+              <div class="mt-2 pt-2" style="border-top:1px solid #f5f5f5">
+                <small class="text-muted"><i class="fas fa-calendar-day mr-1"></i><?= date('d M Y') ?></small>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                <!-- jQuery -->
-                <script src="public/plugins/jquery/jquery.min.js"></script>
-                <!-- jQuery UI 1.11.4 -->
-                <script src="public/plugins/jquery-ui/jquery-ui.min.js"></script>
-                <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-                <script>
-                    $.widget.bridge('uibutton', $.ui.button)
-                </script>
-                <!-- Bootstrap 4 -->
-                <script src="public/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-                <!-- ChartJS -->
-                <script src="public/plugins/chart.js/Chart.min.js"></script>
-                <!-- Sparkline -->
-                <script src="public/plugins/sparklines/sparkline.js"></script>
-                <!-- JQVMap -->
-                <script src="public/plugins/jqvmap/jquery.vmap.min.js"></script>
-                <script src="public/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
-                <!-- jQuery Knob Chart -->
-                <script src="public/plugins/jquery-knob/jquery.knob.min.js"></script>
-                <!-- daterangepicker -->
-                <script src="public/plugins/moment/moment.min.js"></script>
-                <script src="public/plugins/daterangepicker/daterangepicker.js"></script>
-                <!-- Tempusdominus Bootstrap 4 -->
-                <script src="public/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-                <!-- Summernote -->
-                <script src="public/plugins/summernote/summernote-bs4.min.js"></script>
-                <!-- overlayScrollbars -->
-                <script src="public/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-                <!-- AdminLTE App -->
-                <script src="public/dist/js/adminlte.js"></script>
-                <!-- AdminLTE for demo purposes -->
-                <script src="public/dist/js/demo.js"></script>
-                <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-                <script src="public/dist/js/pages/dashboard.js"></script>
-                <script>
-                    $(function() {
-                        // 1. GRÁFICA DE MOVIMIENTOS SEMANALES (BARRAS)
-                        var barChartCanvas = $('#barChartMovimientos').get(0).getContext('2d');
-                        var barChartData = {
-                            labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
-                            datasets: [{
-                                    label: 'Entradas',
-                                    backgroundColor: '#F39C12',
-                                    data: [65, 59, 80, 81, 56, 55, 40]
-                                },
-                                {
-                                    label: 'Salidas',
-                                    backgroundColor: '#D35400',
-                                    data: [28, 48, 40, 19, 86, 27, 90]
-                                }
-                            ]
-                        };
+        <!-- Fila 1: Ventas período + Stock categoría -->
+        <div class="row mb-4">
+          <div class="col-md-8 mb-3">
+            <div class="card chart-card p-4" style="background:#FFF9F2;border:1px solid #FAD7A0">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div class="chart-title">Ventas del Período</div>
+                  <div class="chart-subtitle" id="subtitulo-ventas">Últimos 7 días</div>
+                </div>
+                <span class="badge" style="background:#FFF3CD;color:#856404"><i class="fas fa-circle mr-1" style="color:#E8820C"></i>Monto ($)</span>
+              </div>
+              <div class="chart-wrap">
+                <canvas id="graficaVentasPeriodo" style="height:220px;max-height:220px"></canvas>
+                <div class="chart-loading" id="load-ventas"><i class="fas fa-spinner fa-spin"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card chart-card p-4 h-100" style="background:#FFF9F2;border:1px solid #FAD7A0">
+              <div class="chart-title mb-1">Stock por Categoría</div>
+              <div class="chart-subtitle mb-3">Distribución actual</div>
+              <div style="position:relative;height:190px">
+                <canvas id="graficoStockCategoria"></canvas>
+              </div>
+              <div class="mt-3">
+                <?php foreach ($stockCategorias as $i => $cat): ?>
+                  <div class="leyenda-item">
+                    <div class="color-box" style="background:<?= $coloresCat[$i % count($coloresCat)] ?>"></div>
+                    <span class="flex-grow-1"><?= htmlspecialchars($cat['nombreCategoria']) ?></span>
+                    <b><?= number_format($cat['total']) ?></b>
+                  </div>
+                <?php endforeach; ?>
+                <?php if (empty($stockCategorias)): ?>
+                  <div class="text-muted text-center small">Sin datos aún</div>
+                <?php endif; ?>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                        new Chart(barChartCanvas, {
-                            type: 'bar',
-                            data: barChartData,
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    yAxes: [{
-                                        ticks: {
-                                            beginAtZero: true
-                                        }
-                                    }]
-                                }
-                            }
-                        });
+        <!-- Fila 2: Gastos vs Ventas + Estado inventario -->
+        <div class="row mb-4">
+          <div class="col-md-7 mb-3">
+            <div class="card chart-card p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div class="chart-title">Gastos vs Ventas</div>
+                  <div class="chart-subtitle">Últimos 6 meses</div>
+                </div>
+                <div>
+                  <span class="badge mr-1" style="background:#E8F5E9;color:#28a745"><i class="fas fa-circle mr-1"></i>Ventas</span>
+                  <span class="badge" style="background:#FFEBEE;color:#dc3545"><i class="fas fa-circle mr-1"></i>Gastos</span>
+                </div>
+              </div>
+              <canvas id="graficaGastosVentas" style="height:230px;max-height:230px"></canvas>
+            </div>
+          </div>
+          <div class="col-md-5 mb-3">
+            <div class="card chart-card p-4 h-100">
+              <div class="chart-title mb-1">Estado del Inventario</div>
+              <div class="chart-subtitle mb-4">Resumen de condición actual</div>
+              <div class="estado-row">
+                <div class="d-flex justify-content-between">
+                  <span class="label">Disponibles</span><span class="valor text-success"><?= $disponibles ?>/<?= $totalProductos ?></span>
+                </div>
+                <div class="progress mt-1" style="height:8px;border-radius:5px">
+                  <div class="progress-bar bg-success" style="width:<?= $pctDisp ?>%"></div>
+                </div>
+              </div>
+              <div class="estado-row">
+                <div class="d-flex justify-content-between">
+                  <span class="label">Por caducar <small class="text-muted">(30 días)</small></span><span class="valor text-warning"><?= $porCaducar ?> productos</span>
+                </div>
+                <div class="progress mt-1" style="height:8px;border-radius:5px">
+                  <div class="progress-bar bg-warning" style="width:<?= $pctCaduc ?>%"></div>
+                </div>
+              </div>
+              <div class="estado-row">
+                <div class="d-flex justify-content-between">
+                  <span class="label">Poco stock</span><span class="valor" style="color:#E8820C"><?= $pocoStock ?> productos</span>
+                </div>
+                <div class="progress mt-1" style="height:8px;border-radius:5px">
+                  <div class="progress-bar" style="width:<?= $pctPoco ?>%;background:#E8820C"></div>
+                </div>
+              </div>
+              <div class="estado-row">
+                <div class="d-flex justify-content-between">
+                  <span class="label">Agotados</span><span class="valor text-danger"><?= $agotados ?> productos</span>
+                </div>
+                <div class="progress mt-1" style="height:8px;border-radius:5px">
+                  <div class="progress-bar bg-danger" style="width:<?= $pctAgot ?>%"></div>
+                </div>
+              </div>
+              <div class="mt-4 pt-3" style="border-top:1px solid #f0f0f0;text-align:center">
+                <a href="?menu=productos" class="btn btn-sm btn-outline-warning px-4">
+                  <i class="fas fa-boxes mr-1"></i> Ver todos los productos
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                        // 2. GRÁFICA DE STOCK POR CATEGORÍA (DONA)
-                        var ctxDona = document.getElementById('graficoStockCategoria').getContext('2d');
-                        new Chart(ctxDona, {
-                            type: 'doughnut',
-                            data: {
-                                labels: ['Pastelitos', 'Rollos', 'Galletas', 'Otros'],
-                                datasets: [{
-                                    data: [40, 25, 20, 15],
-                                    backgroundColor: ['#E67E22', '#2E86C1', '#28B463', '#AF601A'],
-                                    borderWidth: 5,
-                                    borderColor: '#FFF9F2'
-                                }]
-                            },
-                            options: {
-                                maintainAspectRatio: false,
-                                cutoutPercentage: 70,
-                                legend: {
-                                    display: false
-                                }
-                            }
-                        });
-                    });
-                </script>
+        <!-- Fila 3: Tendencia oscura — ENTRADAS vs SALIDAS en unidades -->
+        <div class="row mb-4">
+          <div class="col-md-12">
+            <div class="card-tendencia p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div class="chart-title">Tendencia: Entradas vs Salidas</div>
+                  <div class="chart-subtitle" id="subtitulo-tendencia">Unidades ingresadas vs unidades vendidas — semana actual</div>
+                </div>
+                <div>
+                  <span class="badge-tend mr-2"><i class="fas fa-circle mr-1" style="color:#64b5f6"></i>Entradas (uds.)</span>
+                  <span class="badge-tend"><i class="fas fa-circle mr-1" style="color:#ff7043"></i>Salidas (uds.)</span>
+                </div>
+              </div>
+              <div class="chart-wrap">
+                <canvas id="graficaTendencia" style="height:220px;max-height:220px"></canvas>
+                <div class="chart-loading" id="load-tendencia"><i class="fas fa-spinner fa-spin"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila 4: Más y menos vendidos por unidades -->
+        <div class="row mb-4">
+          <div class="col-md-6 mb-3">
+            <div class="card chart-card p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div class="chart-title"><i class="fas fa-trophy mr-2" style="color:#E8820C"></i>Productos Más Vendidos</div>
+                  <div class="chart-subtitle">Top 6 por unidades vendidas</div>
+                </div>
+                <a href="?menu=analisisproductos" class="btn btn-sm btn-outline-warning">Ver análisis</a>
+              </div>
+              <div class="chart-wrap" style="position:relative;height:250px">
+                <canvas id="graficaMasVendidos"></canvas>
+                <div class="chart-loading" id="load-mas"><i class="fas fa-spinner fa-spin"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="card chart-card p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div class="chart-title"><i class="fas fa-arrow-down mr-2 text-danger"></i>Productos Menos Vendidos</div>
+                  <div class="chart-subtitle">Bottom 6 — menor rotación en unidades</div>
+                </div>
+                <a href="?menu=analisisproductos&submenu=menosvendidos" class="btn btn-sm btn-outline-danger">Ver análisis</a>
+              </div>
+              <div class="chart-wrap" style="position:relative;height:250px">
+                <canvas id="graficaMenosVendidos"></canvas>
+                <div class="chart-loading" id="load-menos"><i class="fas fa-spinner fa-spin"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <footer class="main-footer">
+    <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
+    <div class="float-right d-none d-sm-inline-block"><b>Version</b> 3.1.0</div>
+  </footer>
+</div>
+
+<script src="public/plugins/jquery/jquery.min.js"></script>
+<script src="public/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="public/plugins/chart.js/Chart.min.js"></script>
+<script src="public/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<script src="public/dist/js/adminlte.js"></script>
+<script>
+$(function() {
+
+    // ── Estáticas ─────────────────────────────────────────
+
+    new Chart($('#graficoStockCategoria')[0].getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: <?= json_encode($catLabels) ?>,
+            datasets: [{ data: <?= json_encode(array_map('intval', $catTotales)) ?>,
+                backgroundColor: <?= json_encode(array_slice($coloresCat, 0, count($catLabels))) ?>,
+                borderWidth: 4, borderColor: '#FFF9F2' }]
+        },
+        options: { maintainAspectRatio: false, cutoutPercentage: 68, legend: { display: false } }
+    });
+
+    new Chart($('#graficaGastosVentas')[0].getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: <?= json_encode($mesesLabels) ?>,
+            datasets: [
+                { label:'Ventas ($)', data: <?= json_encode(array_map('floatval', $ventasData)) ?>,
+                  borderColor:'#28a745', backgroundColor:'rgba(40,167,69,.08)',
+                  tension:0.4, fill:true, pointBackgroundColor:'#28a745', pointRadius:5 },
+                { label:'Gastos ($)', data: <?= json_encode(array_map('floatval', $gastosData)) ?>,
+                  borderColor:'#dc3545', backgroundColor:'rgba(220,53,69,.08)',
+                  tension:0.4, fill:true, pointBackgroundColor:'#dc3545', pointRadius:5 }
+            ]
+        },
+        options: { responsive:true, maintainAspectRatio:false, legend:{display:false},
+            scales:{ yAxes:[{ ticks:{ beginAtZero:true, callback: v => '$'+v } }] } }
+    });
+
+    // ── Dinámicas ─────────────────────────────────────────
+    let grafVentas, grafTendencia, grafMas, grafMenos;
+
+    const subtitulos = {
+        dia:    'Ventas de hoy por hora',
+        semana: 'Últimos 7 días',
+        mes:    'Últimos 30 días'
+    };
+    const subtitulosTend = {
+        dia:    'Entradas vs salidas en unidades — hoy',
+        semana: 'Entradas vs salidas en unidades — semana actual',
+        mes:    'Entradas vs salidas en unidades — últimos 30 días'
+    };
+
+    function truncar(str, n) {
+        return str && str.length > n ? str.substring(0, n) + '…' : (str || 'N/A');
+    }
+
+    function actualizarGraficas(periodo) {
+        $('.chart-loading').show();
+
+        $.get('index.php?menu=ventas&submenu=datos-dashboard', { periodo }, data => {
+            $('.chart-loading').hide();
+            $('#subtitulo-ventas').text(subtitulos[periodo]);
+            $('#subtitulo-tendencia').text(subtitulosTend[periodo]);
+
+            // ── Ventas del período (barras en $) ──────────
+            const labVentas = data.ventasPeriodo.map(v => v.etiqueta);
+            const datVentas = data.ventasPeriodo.map(v => parseFloat(v.total));
+
+            if (grafVentas) grafVentas.destroy();
+            grafVentas = new Chart($('#graficaVentasPeriodo')[0].getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labVentas.length ? labVentas : ['Sin datos'],
+                    datasets: [{
+                        label: 'Ventas ($)', data: datVentas.length ? datVentas : [0],
+                        backgroundColor: 'rgba(232,130,12,.8)', borderColor: '#E8820C',
+                        borderWidth: 2, borderRadius: 6
+                    }]
+                },
+                options: { responsive:true, maintainAspectRatio:false, legend:{display:false},
+                    scales:{ yAxes:[{ ticks:{ beginAtZero:true, callback: v => '$'+v } }] } }
+            });
+
+            // ── Tendencia: entradas vs salidas en UNIDADES ─
+            // Usamos las etiquetas de ventas como eje X común
+            const labTend   = data.ventasPeriodo.map(v => v.etiqueta);
+
+            // Entradas: alinear con etiquetas de ventas
+            const datEnt = labTend.map(l => {
+                const e = data.entradasPeriodo.find(x => x.etiqueta === l);
+                return e ? parseInt(e.total) : 0;
+            });
+
+            // Salidas: unidades vendidas por período
+            const datSal = labTend.map(l => {
+                const s = data.salidasPeriodo.find(x => x.etiqueta === l);
+                return s ? parseInt(s.total) : 0;
+            });
+
+            if (grafTendencia) grafTendencia.destroy();
+            grafTendencia = new Chart($('#graficaTendencia')[0].getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labTend.length ? labTend : ['Sin datos'],
+                    datasets: [
+                        { label:'Entradas (uds.)', data: datEnt,
+                          borderColor:'#64b5f6', backgroundColor:'rgba(100,181,246,.25)',
+                          tension:0.4, fill:true, pointBackgroundColor:'#64b5f6', pointRadius:5, borderWidth:2 },
+                        { label:'Salidas (uds.)', data: datSal,
+                          borderColor:'#ff7043', backgroundColor:'rgba(255,112,67,.2)',
+                          tension:0.4, fill:true, pointBackgroundColor:'#ff7043', pointRadius:5, borderWidth:2 }
+                    ]
+                },
+                options: { responsive:true, maintainAspectRatio:false, legend:{display:false},
+                    scales:{
+                        xAxes:[{ ticks:{fontColor:'rgba(255,255,255,.6)'}, gridLines:{color:'rgba(255,255,255,.08)'} }],
+                        yAxes:[{ ticks:{fontColor:'rgba(255,255,255,.6)', beginAtZero:true,
+                                        callback: v => v + ' uds.'}, gridLines:{color:'rgba(255,255,255,.08)'} }]
+                    }
+                }
+            });
+
+            // ── Más vendidos por UNIDADES ─────────────────
+            const masLab  = data.masVendidos.map(p => truncar(p.nombreProducto, 20));
+            const masData = data.masVendidos.map(p => parseInt(p.unidades));
+
+            if (grafMas) grafMas.destroy();
+            if (masLab.length) {
+                grafMas = new Chart($('#graficaMasVendidos')[0].getContext('2d'), {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: masLab,
+                        datasets: [{
+                            label: 'Unidades vendidas', data: masData,
+                            backgroundColor: masData.map((_, i) => `rgba(232,130,12,${0.9 - i * 0.1})`)
+                        }]
+                    },
+                    options: { responsive:true, maintainAspectRatio:false, legend:{display:false},
+                        scales:{ xAxes:[{ ticks:{ beginAtZero:true, stepSize:1,
+                                                   callback: v => v + ' uds.' } }] } }
+                });
+            }
+
+            // ── Menos vendidos por UNIDADES ───────────────
+            const menosLab  = data.menosVendidos.map(p => truncar(p.nombreProducto, 20));
+            const menosData = data.menosVendidos.map(p => parseInt(p.unidades));
+
+            if (grafMenos) grafMenos.destroy();
+            if (menosLab.length) {
+                grafMenos = new Chart($('#graficaMenosVendidos')[0].getContext('2d'), {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: menosLab,
+                        datasets: [{
+                            label: 'Unidades vendidas', data: menosData,
+                            backgroundColor: menosData.map((_, i) => `rgba(220,53,69,${0.85 - i * 0.1})`)
+                        }]
+                    },
+                    options: { responsive:true, maintainAspectRatio:false, legend:{display:false},
+                        scales:{ xAxes:[{ ticks:{ beginAtZero:true, stepSize:1,
+                                                   callback: v => v + ' uds.' } }] } }
+                });
+            }
+
+        }, 'json').fail(() => {
+            $('.chart-loading').hide();
+            console.error('Error cargando datos del dashboard');
+        });
+    }
+
+    $('#filtros-periodo .btn-periodo').on('click', function() {
+        $('#filtros-periodo .btn-periodo').removeClass('active');
+        $(this).addClass('active');
+        actualizarGraficas($(this).data('periodo'));
+    });
+
+    actualizarGraficas('semana');
+});
+</script>
 </body>
-
 </html>
