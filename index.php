@@ -127,9 +127,18 @@ if ($menu == 'productos') {
 
 } elseif ($menu == 'dashboard') {
     require_once 'views/dashboard_view.php';
+    
 
 } elseif ($menu == 'respaldo') {
-    require_once 'views/respaldo.php';
+    require_once 'controllers/RespaldoController.php';
+    $ctrl = new RespaldoController($conexion);
+    if ($submenu == 'exportar') {
+        $ctrl->exportar();
+    } elseif ($submenu == 'importar') {
+        $ctrl->importar();
+    } else {
+        $ctrl->index();
+    }
 
 } else {
     http_response_code(404);
