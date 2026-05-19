@@ -25,7 +25,9 @@ class VentasModel {
     }
 
     public function consultarDetalle($idVenta) {
-        $sql = "SELECT d.idDetalle, p.nombreProducto, d.cantidad, d.totalVentaP
+        $sql = "SELECT d.idDetalle, p.nombreProducto, d.cantidad,
+                       d.totalVentaP,
+                       COALESCE(p.ivaPorc, 16) AS ivaPorc
                 FROM detalle_ventas d
                 LEFT JOIN productos p ON d.idProducto = p.idProducto
                 WHERE d.idVenta = ?";
@@ -82,7 +84,14 @@ class VentasModel {
     /* ── Búsqueda de productos ───────────────────────────── */
 
     public function buscarProductos($termino) {
-        $sql = "SELECT idProducto, nombreProducto, precioVenta, stockEnGeneral
+        $sql = "SELECT
+                    idProducto,
+                    nombreProducto,
+                    precioVenta,
+                    stockEnGeneral,
+                    ivaPorc,
+                    -- Si precioVentaConIva es 0 o NULL, lo calcula al vuelo
+                    COALESCE(NULLIF(precioVentaConIva, 0), precioVenta * (1 + ivaPorc / 100)) AS precioVentaFinal
                 FROM productos
                 WHERE nombreProducto LIKE ?
                   AND estado IN ('Activo','Disponible')
@@ -94,7 +103,14 @@ class VentasModel {
     }
 
     public function buscarPorBarcode($codigo) {
-        $sql = "SELECT idProducto, nombreProducto, precioVenta, stockEnGeneral, codigoBarras
+        $sql = "SELECT
+                    idProducto,
+                    nombreProducto,
+                    precioVenta,
+                    stockEnGeneral,
+                    codigoBarras,
+                    ivaPorc,
+                    COALESCE(NULLIF(precioVentaConIva, 0), precioVenta * (1 + ivaPorc / 100)) AS precioVentaFinal
                 FROM productos
                 WHERE codigoBarras = ?
                   AND estado IN ('Activo','Disponible')

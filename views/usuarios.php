@@ -158,11 +158,11 @@ include __DIR__ . "/includes/tablas.php";
                         <div class="row">
                             <div class="col-md-6 form-group">
                                 <label>Nombre(s) <span class="text-danger">*</span></label>
-                                <input type="text" name="Nombres" class="form-control" placeholder="Ej. Nicol" required>
+                                <input type="text" name="Nombres" class="form-control" placeholder="Ej. Nicol Valentina" required>
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>Apellido <span class="text-danger">*</span></label>
-                                <input type="text" name="apellido" class="form-control" placeholder="Ej. Flores García" required>
+                                <input type="text" name="apellido" class="form-control" placeholder="Ej. Lugo Fernández" required>
                             </div>
                         </div>
                         <div class="row">

@@ -17,61 +17,63 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <style>
     /* ── Navbar / Sidebar ── */
-    .main-header.navbar,
-    .main-header.navbar-white,
-    .main-header.navbar-light,
-    nav.main-header                          { background-color:#E8820C!important; border-bottom:none!important }
-    .main-header .nav-link,
-    .main-header .nav-link i,
-    .navbar-light .navbar-nav .nav-link      { color:#fff!important }
-    .main-sidebar, .main-sidebar:before,
-    .brand-link, .sidebar-dark-primary       { background-color:#E8820C!important }
-    .nav-sidebar .nav-link,
-    .brand-link .brand-text,
+    .main-header.navbar,.main-header.navbar-white,
+    .main-header.navbar-light,nav.main-header      { background-color:#E8820C!important;border-bottom:none!important }
+    .main-header .nav-link,.main-header .nav-link i,
+    .navbar-light .navbar-nav .nav-link            { color:#fff!important }
+    .main-sidebar,.main-sidebar:before,
+    .brand-link,.sidebar-dark-primary              { background-color:#E8820C!important }
+    .nav-sidebar .nav-link,.brand-link .brand-text,
     .sidebar .user-panel .info a,
-    .nav-sidebar .nav-link i                 { color:#fff!important }
-    .form-control-sidebar, .btn-sidebar      { background-color:#fff!important; border:1px solid #ddd!important; color:#333!important }
-    .btn-sidebar i                           { color:#333!important }
-    .user-panel, .form-inline                { border-bottom:1px solid rgba(255,255,255,.2)!important }
-    .nav-sidebar .nav-link                   { background:transparent!important }
-    .nav-sidebar .nav-link:hover             { background-color:rgba(255,255,255,.15)!important }
+    .nav-sidebar .nav-link i                       { color:#fff!important }
+    .form-control-sidebar,.btn-sidebar             { background-color:#fff!important;border:1px solid #ddd!important;color:#333!important }
+    .btn-sidebar i                                 { color:#333!important }
+    .user-panel,.form-inline                       { border-bottom:1px solid rgba(255,255,255,.2)!important }
+    .nav-sidebar .nav-link                         { background:transparent!important }
+    .nav-sidebar .nav-link:hover                   { background-color:rgba(255,255,255,.15)!important }
     .nav-sidebar .nav-link.active,
-    .nav-sidebar .nav-item.menu-open>.nav-link { background-color:rgba(0,0,0,.15)!important; color:#fff!important }
+    .nav-sidebar .nav-item.menu-open>.nav-link     { background-color:rgba(0,0,0,.15)!important;color:#fff!important }
 
     /* ── Layout ── */
-    .content-wrapper  { background-color:#FFF5E5!important }
-    .text-stockit     { color:#E8820C!important }
+    .content-wrapper { background-color:#FFF5E5!important }
+    .text-stockit    { color:#E8820C!important }
 
-    /* ── Pills nav ── */
-    #pills-tab .nav-link        { color:#E8820C; border:1px solid #E8820C; border-radius:5px; margin-right:10px; background:white }
-    #pills-tab .nav-link.active { background-color:#E8820C!important; color:white!important; border-color:#E8820C!important }
+    /* ── Pills ── */
+    #pills-tab .nav-link        { color:#E8820C;border:1px solid #E8820C;border-radius:5px;margin-right:10px;background:white }
+    #pills-tab .nav-link.active { background-color:#E8820C!important;color:white!important;border-color:#E8820C!important }
 
     /* ── Métodos de pago ── */
-    .metodo-pago        { border:2px solid #E8820C!important; background:white; color:#E8820C;
-                          margin-bottom:8px; text-align:left; padding:15px; transition:.3s;
-                          border-radius:12px!important; font-weight:bold }
-    .metodo-pago.active { background-color:#FFF9C4!important; border-width:3px!important }
+    .metodo-pago        { border:2px solid #E8820C!important;background:white;color:#E8820C;
+                          margin-bottom:8px;text-align:left;padding:15px;transition:.3s;
+                          border-radius:12px!important;font-weight:bold }
+    .metodo-pago.active { background-color:#FFF9C4!important;border-width:3px!important }
 
     /* ── Carrito ── */
-    #resultados-locales { max-height:220px; overflow-y:auto }
-    .barcode-input-group .input-group-text { background:#343a40; color:white; border:none }
+    #resultados-locales             { max-height:220px;overflow-y:auto }
+    .barcode-input-group .input-group-text { background:#343a40;color:white;border:none }
 
-    /* ── Modal cambio (efectivo) ── */
-    .cambio-display   { font-size:2.5rem; font-weight:bold; text-align:center; padding:15px; border-radius:10px; margin-top:10px }
-    .cambio-positivo  { background:#e8f5e9; color:#2e7d32 }
-    .cambio-negativo  { background:#ffebee; color:#c62828 }
-    .cambio-cero      { background:#fff3e0; color:#E8820C }
+    /* ── Resumen IVA en carrito ── */
+    .resumen-iva           { background:#FFF3E0;border-radius:10px;padding:10px 14px;font-size:.85rem }
+    .resumen-iva .ri-row   { display:flex;justify-content:space-between;padding:2px 0 }
+    .resumen-iva .ri-total { border-top:1px solid #E8820C;margin-top:4px;padding-top:6px;
+                             font-weight:bold;color:#E8820C;font-size:1rem }
+
+    /* ── Modal cambio ── */
+    .cambio-display  { font-size:2.5rem;font-weight:bold;text-align:center;padding:15px;border-radius:10px;margin-top:10px }
+    .cambio-positivo { background:#e8f5e9;color:#2e7d32 }
+    .cambio-negativo { background:#ffebee;color:#c62828 }
+    .cambio-cero     { background:#fff3e0;color:#E8820C }
 
     /* ── Motivos devolución ── */
-    .motivo-card         { border:2px solid #E8820C; border-radius:8px; padding:12px 15px;
-                           margin-bottom:10px; cursor:pointer; background:white; transition:all .2s; color:#555 }
+    .motivo-card          { border:2px solid #E8820C;border-radius:8px;padding:12px 15px;
+                            margin-bottom:10px;cursor:pointer;background:white;transition:all .2s;color:#555 }
     .motivo-card:hover,
-    .motivo-card.selected { background-color:#FFF3E0; border-color:#E8820C; color:#E8820C; font-weight:bold }
-    .motivo-card i       { color:#E8820C; margin-right:8px }
+    .motivo-card.selected { background-color:#FFF3E0;border-color:#E8820C;color:#E8820C;font-weight:bold }
+    .motivo-card i        { color:#E8820C;margin-right:8px }
 
     /* ── Corte ── */
-    #historial-transacciones tr          { cursor:pointer }
-    #historial-transacciones tr:hover    { background-color:#FFF3E0 }
+    #historial-transacciones tr       { cursor:pointer }
+    #historial-transacciones tr:hover { background-color:#FFF3E0 }
   </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -99,7 +101,7 @@
     <div class="container-fluid">
       <div class="tab-content">
 
-        <!-- ══════════════════════════ TAB: VENTA DIRECTA ══════════════════════════ -->
+        <!-- ══════════════ TAB: VENTA DIRECTA ══════════════ -->
         <div class="tab-pane fade show active" id="tab-venta">
           <div class="row">
 
@@ -113,7 +115,6 @@
                 </div>
                 <div class="card-body">
 
-                  <!-- Búsqueda por nombre -->
                   <div class="position-relative mb-2">
                     <input type="text" id="busqueda-local" class="form-control"
                            placeholder="🔍 Buscar producto por nombre...">
@@ -121,7 +122,6 @@
                          style="z-index:1050"></div>
                   </div>
 
-                  <!-- Búsqueda por código de barras -->
                   <div class="input-group mb-3 barcode-input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fas fa-barcode"></i></span>
@@ -133,12 +133,32 @@
                   <table class="table table-sm mt-1">
                     <thead>
                       <tr class="text-stockit">
-                        <th>Producto</th><th style="width:130px">Cant.</th>
-                        <th>Subtotal</th><th></th>
+                        <th>Producto</th>
+                        <th style="width:130px">Cant.</th>
+                        <th>Precio s/IVA</th>
+                        <th>IVA</th>
+                        <th>Subtotal c/IVA</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody id="lista-venta"></tbody>
                   </table>
+
+                  <!-- Resumen IVA -->
+                  <div class="resumen-iva mt-2" id="resumen-iva" style="display:none">
+                    <div class="ri-row">
+                      <span class="text-muted">Subtotal sin IVA</span>
+                      <span id="res-sin-iva">$0.00</span>
+                    </div>
+                    <div class="ri-row">
+                      <span class="text-muted">IVA total</span>
+                      <span id="res-iva">$0.00</span>
+                    </div>
+                    <div class="ri-row ri-total">
+                      <span>Total con IVA</span>
+                      <span id="res-total-iva">$0.00</span>
+                    </div>
+                  </div>
 
                   <div class="text-right mt-2">
                     <h3>Total: <span class="text-stockit font-weight-bold" id="total-venta">$0.00</span></h3>
@@ -178,11 +198,9 @@
           </div>
         </div><!-- /tab-venta -->
 
-        <!-- ══════════════════════════ TAB: DEVOLUCIONES ══════════════════════════ -->
+        <!-- ══════════════ TAB: DEVOLUCIONES ══════════════ -->
         <div class="tab-pane fade" id="tab-devolucion">
           <div class="row">
-
-            <!-- Motivos rápidos -->
             <div class="col-md-3">
               <div class="card shadow-sm border-top border-warning">
                 <div class="card-header bg-white">
@@ -202,8 +220,7 @@
                     ['fa-box-open',              'Producto Incompleto'],
                   ];
                   foreach ($motivos as [$icon, $label]): ?>
-                    <div class="motivo-card"
-                         onclick="seleccionarMotivo(this,'<?= $label ?>')">
+                    <div class="motivo-card" onclick="seleccionarMotivo(this,'<?= $label ?>')">
                       <i class="fas <?= $icon ?>"></i> <?= $label ?>
                     </div>
                   <?php endforeach; ?>
@@ -211,7 +228,6 @@
               </div>
             </div>
 
-            <!-- Formulario devolución -->
             <div class="col-md-9">
               <div class="card shadow-sm">
                 <div class="card-header bg-white">
@@ -252,14 +268,12 @@
                     <label>Descripción adicional <small class="text-muted">(opcional)</small></label>
                     <input type="text" id="dev-descripcion" class="form-control" placeholder="Detalle extra...">
                   </div>
-                  <button class="btn btn-warning px-4 font-weight-bold text-white"
-                          onclick="registrarDevolucion()">
+                  <button class="btn btn-warning px-4 font-weight-bold text-white" onclick="registrarDevolucion()">
                     <i class="fas fa-plus mr-1"></i> Registrar Devolución
                   </button>
                 </div>
               </div>
 
-              <!-- Historial devoluciones -->
               <div class="card shadow-sm mt-2">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                   <h5 class="card-title text-stockit font-weight-bold mb-0">
@@ -293,11 +307,10 @@
                 </div>
               </div>
             </div>
-
           </div>
         </div><!-- /tab-devolucion -->
 
-        <!-- ══════════════════════════ TAB: CORTE DIARIO ══════════════════════════ -->
+        <!-- ══════════════ TAB: CORTE DIARIO ══════════════ -->
         <div class="tab-pane fade" id="tab-corte">
           <div class="card shadow-sm">
             <div class="card-header bg-dark">
@@ -344,15 +357,12 @@
           </div>
         </div><!-- /tab-corte -->
 
-      </div><!-- /.tab-content -->
+      </div>
     </div>
   </section>
-</div><!-- /.content-wrapper -->
+</div>
 
-
-<!-- ══════════════════════════════════════════════════════════
-     MODAL: EFECTIVO — Calcular Cambio
-══════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════ MODAL: EFECTIVO ═══════════════════════ -->
 <div class="modal fade" id="modalCambio" tabindex="-1" data-backdrop="static">
   <div class="modal-dialog modal-md">
     <div class="modal-content" style="border-radius:12px;overflow:hidden">
@@ -363,15 +373,14 @@
       </div>
       <div class="modal-body">
         <div class="text-center mb-3">
-          <p class="text-muted mb-1">Total a cobrar:</p>
-          <h2 class="text-stockit font-weight-bold" id="modal-total-display">$0.00</h2>
+          <p class="text-muted mb-0">Total a cobrar (con IVA):</p>
+          <h2 class="text-stockit font-weight-bold mb-0" id="modal-total-display">$0.00</h2>
+          <small class="text-muted" id="modal-desglose-iva"></small>
         </div>
         <div class="form-group">
           <label class="font-weight-bold">Dinero recibido del cliente:</label>
           <div class="input-group input-group-lg">
-            <div class="input-group-prepend">
-              <span class="input-group-text">$</span>
-            </div>
+            <div class="input-group-prepend"><span class="input-group-text">$</span></div>
             <input type="number" id="dinero-recibido" class="form-control"
                    placeholder="0.00" step="0.01" min="0">
           </div>
@@ -382,8 +391,7 @@
         </div>
       </div>
       <div class="modal-footer" style="border:none">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal"
-                onclick="limpiarCarrito()">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="limpiarCarrito()">
           <i class="fas fa-times mr-1"></i> Cancelar
         </button>
         <button type="button" id="btn-confirmar-pago" class="btn btn-success" disabled>
@@ -394,9 +402,7 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════
-     MODAL: TARJETA / TRANSFERENCIA — Folio de pago
-══════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════ MODAL: TARJETA ════════════════════════ -->
 <div class="modal fade" id="modalTarjeta" tabindex="-1" data-backdrop="static">
   <div class="modal-dialog modal-md">
     <div class="modal-content" style="border-radius:12px;overflow:hidden">
@@ -407,8 +413,9 @@
       </div>
       <div class="modal-body">
         <div class="text-center mb-4">
-          <p class="text-muted mb-1">Total a cobrar:</p>
-          <h2 class="font-weight-bold text-stockit" id="modal-total-tarjeta">$0.00</h2>
+          <p class="text-muted mb-0">Total a cobrar (con IVA):</p>
+          <h2 class="font-weight-bold text-stockit mb-0" id="modal-total-tarjeta">$0.00</h2>
+          <small class="text-muted" id="modal-desglose-iva-tarjeta"></small>
         </div>
         <div class="form-group">
           <label class="font-weight-bold">
@@ -419,9 +426,7 @@
           <input type="text" id="folio-pago" class="form-control form-control-lg"
                  placeholder="Ej. TRF-20250515-001"
                  style="border:2px solid #E8820C;border-radius:10px;letter-spacing:1px">
-          <small class="text-muted">
-            El folio queda registrado en la venta para seguimiento del cliente. Es opcional pero recomendado.
-          </small>
+          <small class="text-muted">El folio queda registrado para seguimiento. Es opcional pero recomendado.</small>
         </div>
         <div class="alert mb-0" style="background:#FFF3E0;border-left:4px solid #E8820C;border-radius:8px">
           <i class="fas fa-info-circle mr-2 text-stockit"></i>
@@ -429,8 +434,7 @@
         </div>
       </div>
       <div class="modal-footer" style="border:none">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal"
-                onclick="limpiarCarrito()">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="limpiarCarrito()">
           <i class="fas fa-times mr-1"></i> Cancelar
         </button>
         <button type="button" id="btn-confirmar-tarjeta" class="btn font-weight-bold px-4"
@@ -442,7 +446,6 @@
   </div>
 </div>
 
-
 <script src="public/plugins/jquery/jquery.min.js"></script>
 <script src="public/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="public/dist/js/adminlte.min.js"></script>
@@ -452,7 +455,9 @@
 // ── Estado global ─────────────────────────────────────────
 let carrito          = [];
 let pagoSeleccionado = null;
-let totalActual      = 0;
+let totalActual      = 0;   // con IVA
+let totalSinIva      = 0;
+let totalIva         = 0;
 
 // ── Método de pago ────────────────────────────────────────
 $('.metodo-pago').on('click', function () {
@@ -477,16 +482,24 @@ $('#busqueda-local').on('keyup', function () {
                 return;
             }
             data.forEach(p => {
+                const pSin   = parseFloat(p.precioVenta);
+                const ivaP   = parseFloat(p.ivaPorc) || 16;
+                const pFinal = parseFloat(p.precioVentaFinal) > 0
+                               ? parseFloat(p.precioVentaFinal)
+                               : pSin * (1 + ivaP / 100);
+
                 const item = $(`
-                    <a class="list-group-item list-group-item-action d-flex justify-content-between">
+                    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                       <span>${p.nombreProducto}</span>
                       <span>
-                        <b class="text-stockit">$${parseFloat(p.precioVenta).toFixed(2)}</b>
+                        <b class="text-stockit">$${pFinal.toFixed(2)}</b>
+                        <small class="text-muted ml-1">(c/IVA ${ivaP}%)</small>
                         <small class="text-muted ml-2">Stock: ${p.stockEnGeneral}</small>
                       </span>
                     </a>`);
                 item.on('click', () => {
-                    agregarAlCarrito({ id: p.idProducto, nombre: p.nombreProducto, precio: parseFloat(p.precioVenta) });
+                    agregarAlCarrito({ id: p.idProducto, nombre: p.nombreProducto,
+                                       precio: pSin, ivaPorc: ivaP, pFinal });
                     res.empty();
                     $('#busqueda-local').val('');
                 });
@@ -503,9 +516,17 @@ $('#busqueda-barcode').on('keydown', function (e) {
     if (!codigo) return;
 
     $.get('index.php?menu=ventas&submenu=buscar-productos', { barcode: codigo }, data => {
+        const buildItem = p => {
+            const pSin   = parseFloat(p.precioVenta);
+            const ivaP   = parseFloat(p.ivaPorc) || 16;
+            const pFinal = parseFloat(p.precioVentaFinal) > 0
+                           ? parseFloat(p.precioVentaFinal)
+                           : pSin * (1 + ivaP / 100);
+            return { id: p.idProducto, nombre: p.nombreProducto, precio: pSin, ivaPorc: ivaP, pFinal };
+        };
+
         if (data.length === 1) {
-            const p = data[0];
-            agregarAlCarrito({ id: p.idProducto, nombre: p.nombreProducto, precio: parseFloat(p.precioVenta) });
+            agregarAlCarrito(buildItem(data[0]));
             $(this).val('').addClass('is-valid');
             setTimeout(() => $(this).removeClass('is-valid'), 800);
         } else if (!data.length) {
@@ -517,10 +538,11 @@ $('#busqueda-barcode').on('keydown', function (e) {
             const res = $('#resultados-locales');
             res.empty();
             data.forEach(p => {
+                const obj  = buildItem(p);
                 const item = $(`<a class="list-group-item list-group-item-action">
-                    ${p.nombreProducto} — $${parseFloat(p.precioVenta).toFixed(2)}</a>`);
+                    ${p.nombreProducto} — $${obj.pFinal.toFixed(2)} (c/IVA)</a>`);
                 item.on('click', () => {
-                    agregarAlCarrito({ id: p.idProducto, nombre: p.nombreProducto, precio: parseFloat(p.precioVenta) });
+                    agregarAlCarrito(obj);
                     res.empty();
                     $('#busqueda-barcode').val('');
                 });
@@ -530,51 +552,66 @@ $('#busqueda-barcode').on('keydown', function (e) {
     }, 'json');
 });
 
-// ── Carrito: agregar ──────────────────────────────────────
+// ── Carrito ───────────────────────────────────────────────
 function agregarAlCarrito(p) {
     const ex = carrito.find(i => i.id === p.id);
     if (ex) { ex.cantidad++; } else { carrito.push({ ...p, cantidad: 1 }); }
     actualizarVista();
 }
 
-// ── Carrito: renderizar ───────────────────────────────────
 function actualizarVista() {
     const tbody = $('#lista-venta').empty();
-    let tot = 0;
+    let totSin = 0, totIva = 0, totCon = 0;
 
     carrito.forEach((p, i) => {
-        const sub = p.precio * p.cantidad;
-        tot += sub;
+        const subSin = p.precio  * p.cantidad;
+        const subIva = (p.precio * p.ivaPorc / 100) * p.cantidad;
+        const subCon = p.pFinal  * p.cantidad;
+        totSin += subSin; totIva += subIva; totCon += subCon;
+
         tbody.append(`
             <tr>
-              <td>${p.nombre}</td>
+              <td>
+                ${p.nombre}
+                <br><small class="text-muted">${p.ivaPorc}% IVA</small>
+              </td>
               <td>
                 <div class="input-group input-group-sm" style="width:120px">
                   <div class="input-group-prepend">
-                    <button class="btn btn-outline-secondary btn-sm"
-                            onclick="cambiarCantidad(${i},-1)">−</button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(${i},-1)">−</button>
                   </div>
-                  <input type="number" class="form-control text-center"
-                         value="${p.cantidad}" min="1"
+                  <input type="number" class="form-control text-center" value="${p.cantidad}" min="1"
                          onchange="setCantidad(${i}, this.value)">
                   <div class="input-group-append">
-                    <button class="btn btn-outline-secondary btn-sm"
-                            onclick="cambiarCantidad(${i},1)">+</button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(${i},1)">+</button>
                   </div>
                 </div>
               </td>
-              <td>$${sub.toFixed(2)}</td>
+              <td>$${subSin.toFixed(2)}</td>
+              <td class="text-muted small">+$${subIva.toFixed(2)}</td>
+              <td class="font-weight-bold text-stockit">$${subCon.toFixed(2)}</td>
               <td>
-                <button class="btn btn-xs btn-danger"
-                        onclick="carrito.splice(${i},1);actualizarVista()">
+                <button class="btn btn-xs btn-danger" onclick="carrito.splice(${i},1);actualizarVista()">
                   <i class="fas fa-times"></i>
                 </button>
               </td>
             </tr>`);
     });
 
-    totalActual = tot;
-    $('#total-venta').text(`$${tot.toFixed(2)}`);
+    totalSinIva = totSin;
+    totalIva    = totIva;
+    totalActual = totCon;
+
+    if (carrito.length) {
+        $('#resumen-iva').show();
+        $('#res-sin-iva').text(`$${totSin.toFixed(2)}`);
+        $('#res-iva').text(`$${totIva.toFixed(2)}`);
+        $('#res-total-iva').text(`$${totCon.toFixed(2)}`);
+    } else {
+        $('#resumen-iva').hide();
+    }
+
+    $('#total-venta').text(`$${totCon.toFixed(2)}`);
 }
 
 function setCantidad(i, val) {
@@ -590,41 +627,43 @@ function cambiarCantidad(i, delta) {
 }
 
 function limpiarCarrito() {
-    carrito = []; pagoSeleccionado = null; totalActual = 0;
+    carrito = []; pagoSeleccionado = null;
+    totalActual = 0; totalSinIva = 0; totalIva = 0;
     $('.metodo-pago').removeClass('active');
     actualizarVista();
 }
 
+// ── Desglose IVA para modales ─────────────────────────────
+function desgloseTexto() {
+    return `Subtotal: $${totalSinIva.toFixed(2)} + IVA: $${totalIva.toFixed(2)}`;
+}
+
 // ── Botón Procesar Pago ───────────────────────────────────
 $('#btn-finalizar').on('click', function () {
-    if (!carrito.length) {
+    if (!carrito.length)
         return Swal.fire({ icon:'warning', title:'Carrito vacío',
-                           text:'Agrega productos antes de procesar.',
-                           timer:1500, showConfirmButton:false });
-    }
-    if (!pagoSeleccionado) {
+                           text:'Agrega productos antes de procesar.', timer:1500, showConfirmButton:false });
+    if (!pagoSeleccionado)
         return Swal.fire({ icon:'warning', title:'Método de pago',
-                           text:'Selecciona un método de pago.',
-                           timer:1500, showConfirmButton:false });
-    }
+                           text:'Selecciona un método de pago.', timer:1500, showConfirmButton:false });
 
     if (pagoSeleccionado === 2) {
-        // Tarjeta → modal con folio
         $('#folio-pago').val('');
         $('#modal-total-tarjeta').text(`$${totalActual.toFixed(2)}`);
+        $('#modal-desglose-iva-tarjeta').text(desgloseTexto());
         $('#modalTarjeta').modal('show');
     } else {
-        // Efectivo → modal de cambio
         $('#dinero-recibido').val('');
         $('#cambio-resultado').hide();
         $('#btn-confirmar-pago').prop('disabled', true);
         $('#modal-total-display').text(`$${totalActual.toFixed(2)}`);
+        $('#modal-desglose-iva').text(desgloseTexto());
         $('#modalCambio').modal('show');
         setTimeout(() => $('#dinero-recibido').focus(), 400);
     }
 });
 
-// ── Modal Efectivo: calcular cambio en tiempo real ────────
+// ── Cambio en tiempo real ─────────────────────────────────
 $('#dinero-recibido').on('input', function () {
     const recibido = parseFloat($(this).val()) || 0;
     const cambio   = recibido - totalActual;
@@ -636,22 +675,14 @@ $('#dinero-recibido').on('input', function () {
     res.show().removeClass('cambio-positivo cambio-negativo cambio-cero');
     btn.prop('disabled', cambio < 0);
 
-    if (cambio > 0) {
-        res.addClass('cambio-positivo');
-        $('#cambio-valor').text(`$${cambio.toFixed(2)}`);
-    } else if (cambio === 0) {
-        res.addClass('cambio-cero');
-        $('#cambio-valor').text('Exacto 👌');
-    } else {
-        res.addClass('cambio-negativo');
-        $('#cambio-valor').text(`Faltan $${Math.abs(cambio).toFixed(2)}`);
-    }
+    if (cambio > 0)      { res.addClass('cambio-positivo'); $('#cambio-valor').text(`$${cambio.toFixed(2)}`); }
+    else if (cambio === 0) { res.addClass('cambio-cero');  $('#cambio-valor').text('Exacto 👌'); }
+    else                  { res.addClass('cambio-negativo'); $('#cambio-valor').text(`Faltan $${Math.abs(cambio).toFixed(2)}`); }
 });
 
 // ── Confirmar efectivo ────────────────────────────────────
 $('#btn-confirmar-pago').on('click', function () {
-    const recibido = parseFloat($('#dinero-recibido').val()) || 0;
-    const cambio   = recibido - totalActual;
+    const cambio = parseFloat($('#dinero-recibido').val()) - totalActual;
     $('#modalCambio').modal('hide');
     procesarVenta(cambio);
 });
@@ -669,27 +700,65 @@ function procesarVenta(cambio, folio = '') {
         url: 'index.php?menu=ventas&submenu=procesar-venta',
         method: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({
-            carrito,
-            idMetodoPago: pagoSeleccionado,
-            folio: folio || null
-        }),
+        data: JSON.stringify({ carrito, idMetodoPago: pagoSeleccionado, folio: folio || null }),
         success(res) {
             if (!res.ok) return Swal.fire({ icon:'error', title:'Error', text: res.msg });
 
-            let html = `<p><b>Total:</b> $${parseFloat(res.total).toFixed(2)}</p>`;
-            if (pagoSeleccionado === 1) {
-                html += `<p><b>Cambio entregado:</b>
-                    <span style="color:#2e7d32;font-size:1.4rem;font-weight:bold">
-                      $${parseFloat(cambio).toFixed(2)}
-                    </span></p>`;
-            }
-            if (folio) html += `<p><b>Folio:</b> <code>${folio}</code></p>`;
+            // ── Ticket con desglose IVA ──────────────────
+            const filas = carrito.map(p => {
+                const subCon = (p.pFinal * p.cantidad).toFixed(2);
+                const subIva = (p.precio * p.ivaPorc / 100 * p.cantidad).toFixed(2);
+                return `<tr>
+                    <td style="padding:4px 6px;text-align:left">${p.nombre} x${p.cantidad}</td>
+                    <td style="padding:4px 6px;text-align:right;color:#888;font-size:.8rem">+$${subIva} IVA</td>
+                    <td style="padding:4px 6px;text-align:right;font-weight:600">$${subCon}</td>
+                </tr>`;
+            }).join('');
+
+            let html = `
+                <div style="font-family:monospace;font-size:.85rem;text-align:left">
+                  <table style="width:100%;border-collapse:collapse;margin-bottom:8px">
+                    <thead>
+                      <tr style="border-bottom:1px dashed #ccc;color:#888;font-size:.75rem">
+                        <th style="padding:4px 6px">Producto</th>
+                        <th style="padding:4px 6px;text-align:right">IVA</th>
+                        <th style="padding:4px 6px;text-align:right">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>${filas}</tbody>
+                  </table>
+                  <div style="border-top:1px dashed #ccc;padding-top:6px">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+                      <span style="color:#888">Subtotal sin IVA</span>
+                      <span>$${totalSinIva.toFixed(2)}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                      <span style="color:#888">IVA total</span>
+                      <span>$${totalIva.toFixed(2)}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:1.1rem;
+                                color:#E8820C;border-top:2px solid #E8820C;padding-top:6px">
+                      <span>Total con IVA</span>
+                      <span>$${parseFloat(res.total).toFixed(2)}</span>
+                    </div>
+                  </div>`;
+
+            if (pagoSeleccionado === 1)
+                html += `<div style="margin-top:8px;color:#2e7d32;font-weight:bold">
+                            <i class="fas fa-coins"></i> Cambio: $${Math.max(0, cambio).toFixed(2)}
+                          </div>`;
+            if (folio)
+                html += `<div style="margin-top:4px;color:#555">
+                            <i class="fas fa-hashtag"></i> Folio: <code>${folio}</code>
+                          </div>`;
+
+            html += `</div>`;
 
             Swal.fire({
                 icon: 'success',
                 title: `¡Venta #${res.idVenta} Exitosa!`,
                 html,
+                width: 500,
                 confirmButtonColor: '#E8820C',
                 confirmButtonText: 'Aceptar'
             }).then(() => location.reload());
@@ -736,11 +805,9 @@ function registrarDevolucion() {
     const descripcion = $('#dev-descripcion').val().trim();
     const idVenta     = $('#dev-idventa').val() || null;
 
-    if (!nombre || !idProducto) {
+    if (!nombre || !idProducto)
         return Swal.fire({ icon:'warning', title:'Producto requerido',
-                           text:'Busca y selecciona un producto.',
-                           timer:1500, showConfirmButton:false });
-    }
+                           text:'Busca y selecciona un producto.', timer:1500, showConfirmButton:false });
 
     $.ajax({
         url: 'index.php?menu=ventas&submenu=registrar-devolucion',
@@ -780,27 +847,29 @@ function verDetalleVenta(idVenta, hora, total, metodo) {
             $.get(`index.php?menu=ventas&submenu=detalle-venta&id=${idVenta}`, data => {
                 const filas = (data || []).map(p =>
                     `<tr>
-                       <td style="text-align:left;padding:8px">${p.nombreProducto}</td>
-                       <td style="padding:8px">$${parseFloat(p.totalVentaP).toFixed(2)}</td>
+                       <td style="text-align:left;padding:6px">${p.nombreProducto}</td>
+                       <td style="padding:6px;text-align:center">${p.cantidad ?? 1}</td>
+                       <td style="padding:6px;text-align:right">$${parseFloat(p.totalVentaP).toFixed(2)}</td>
                      </tr>`
-                ).join('') || '<tr><td colspan="2" style="color:#999;text-align:center">Sin detalle</td></tr>';
+                ).join('') || '<tr><td colspan="3" style="color:#999;text-align:center">Sin detalle</td></tr>';
 
                 Swal.update({
                     html: `
-                        <div style="text-align:left;margin-bottom:10px;font-size:14px">
+                        <div style="text-align:left;margin-bottom:8px;font-size:13px">
                           <b>Hora:</b> ${hora} &nbsp;|&nbsp; <b>Método:</b> ${metodo}
                         </div>
-                        <table style="width:100%;font-size:14px;border-collapse:collapse">
+                        <table style="width:100%;font-size:13px;border-collapse:collapse">
                           <thead>
                             <tr style="background:#FFF3E0;color:#E8820C">
-                              <th style="padding:8px;text-align:left;border-bottom:2px solid #E8820C">Producto</th>
-                              <th style="padding:8px;border-bottom:2px solid #E8820C">Subtotal</th>
+                              <th style="padding:6px;text-align:left;border-bottom:2px solid #E8820C">Producto</th>
+                              <th style="padding:6px;text-align:center;border-bottom:2px solid #E8820C">Cant.</th>
+                              <th style="padding:6px;text-align:right;border-bottom:2px solid #E8820C">Subtotal</th>
                             </tr>
                           </thead>
                           <tbody>${filas}</tbody>
                         </table>
-                        <div style="background:#FFF3E0;border-radius:8px;padding:12px;margin-top:15px;text-align:center">
-                          <p style="margin:0;color:#555;font-size:13px">TOTAL DE LA VENTA</p>
+                        <div style="background:#FFF3E0;border-radius:8px;padding:12px;margin-top:12px;text-align:center">
+                          <p style="margin:0;color:#555;font-size:12px">TOTAL (con IVA incluido)</p>
                           <p style="margin:0;font-size:2rem;font-weight:bold;color:#E8820C">
                             $${parseFloat(total).toFixed(2)}
                           </p>

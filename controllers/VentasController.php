@@ -46,7 +46,8 @@ class VentasController {
             exit;
         }
 
-        $total = array_sum(array_map(fn($p) => $p['precio'] * $p['cantidad'], $carrito));
+        // ✅ Total usando pFinal (precio con IVA) × cantidad
+        $total = array_sum(array_map(fn($p) => $p['pFinal'] * $p['cantidad'], $carrito));
 
         try {
             $idMetodoPago = $this->modelo->insertarMetodoPago($total, $tipoMetodo);
@@ -64,7 +65,8 @@ class VentasController {
             );
 
             foreach ($carrito as $p) {
-                $this->modelo->insertarDetalle($idVenta, $p['id'], $p['precio'] * $p['cantidad'], $p['cantidad']);
+                // ✅ Guardar totalVentaP con IVA incluido (pFinal × cantidad)
+                $this->modelo->insertarDetalle($idVenta, $p['id'], $p['pFinal'] * $p['cantidad'], $p['cantidad']);
                 $this->modelo->descontarStock($p['id'], $p['cantidad']);
             }
 
